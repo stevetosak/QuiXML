@@ -3,13 +3,12 @@ package myXml.xmlComponents;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class XMLLeaf implements XMLComponent {
-    private final String tag;
+public class XMLLeaf extends XMLComponent {
     private final Set<Attribute> attributes = new LinkedHashSet<>();
     private final String value;
 
     public XMLLeaf(String tag, String value) {
-        this.tag = tag;
+        super(tag);
         this.value = value;
     }
 

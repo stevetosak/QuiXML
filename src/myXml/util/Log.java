@@ -25,5 +25,13 @@ public class Log {
     public static void rootAdded(String tagName){
         System.out.println("Added root: " + tagName);
     }
+    public static void invalidCommandMsg(){
+        System.out.println("Invalid command");
+    }
+    public static void documentClearedMsg(){
+        System.out.println("Document cleared");
+        emptyDocumentMsg();
+        System.out.println("You can revert to the previous state of the document by typing \"revert\"");
+    }
 
 }

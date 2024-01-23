@@ -5,39 +5,28 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class XMLContainer implements XMLComponent {
-    private final String tag;
-    private final Set<Attribute> attributes = new LinkedHashSet<>();
+public class XMLContainer extends XMLComponent {
     private XMLContainer parent;
-    private final List<XMLContainer> children = new ArrayList<>();
+    private  List<XMLContainer> children = new ArrayList<>();
     private final List<XMLLeaf> elements = new ArrayList<>();
 
     public XMLContainer(){
-        this.tag = "";
+        super("");
         parent = null;
     }
     public XMLContainer(String tag) {
-        this.tag = tag;
+        super(tag);
         parent = null;
-    }
-
-    public String getTag() {
-        return tag;
     }
 
     public void addValue(XMLLeaf value) {
         elements.add(value);
     }
-
-    @Override
-    public void addAttribute(String name, String val) {
-        attributes.add(new Attribute(name, val));
-    }
-
     @Override
     public String toString() {
         return xmlString(0);
     }
+
 
     public List<XMLContainer> getSiblings() {
         if (parent == null) {
@@ -61,9 +50,14 @@ public class XMLContainer implements XMLComponent {
         return children;
     }
 
+
     public XMLContainer getParent() {
         if (parent == null) return this;
         return parent;
+    }
+
+    public void setChildren(List<XMLContainer> children) {
+        this.children = children;
     }
 
     public void setParent(XMLContainer parent) {

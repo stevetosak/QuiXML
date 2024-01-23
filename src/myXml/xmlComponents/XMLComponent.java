@@ -1,9 +1,24 @@
 package myXml.xmlComponents;
 
-interface XMLComponent {
-    void addAttribute(String name, String val);
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-    String xmlString(int depth);
+abstract class XMLComponent {
+    protected final String tag;
+    Set<Attribute> attributes = new LinkedHashSet<>();
+
+    public XMLComponent(String tag) {
+        this.tag = tag;
+    }
+
+    public void addAttribute(String name, String val) {
+        attributes.add(new Attribute(name, val));
+    }
+    public String getTag() {
+        return tag;
+    }
+
+    abstract String xmlString(int depth);
 
 }
 

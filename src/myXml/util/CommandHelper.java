@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 record Command(String name, String info) {
-
     @Override
     public String toString() {
         return name + " - " + info;
@@ -30,9 +30,9 @@ class CommandInitializer {
 }
 
 public class CommandHelper {
-    private final List<Command> commandList;
+    private static List<Command> commandList;
     private final Map<String,Command> commandToInfoMap;
-    private boolean wasInit;
+    public static final String INIT_COMMAND = "addroot";
 
     public CommandHelper() throws IOException {
         commandToInfoMap = new HashMap<>();
@@ -54,6 +54,9 @@ public class CommandHelper {
         sb.append("\n");
         System.out.println(sb);
         System.out.println("To get info about a command type \"help (command name)\"");
+    }
+    public static List<String> getCommandList(){
+        return commandList.stream().map(Command::name).collect(Collectors.toList());
     }
 
 }
