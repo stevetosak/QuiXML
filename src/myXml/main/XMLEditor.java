@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-class XMLEditor{
+class XMLEditor {
     private XMLContainer mainRoot;// points to all the root nodes;
     private final Stack<XMLWrapper> previousRootState = new Stack<>(); // where you were
     private final Stack<RootStateWrapper> previousDocumentState = new Stack<>();
@@ -19,7 +20,6 @@ class XMLEditor{
     public CommandHelper commandHelper = new CommandHelper();
     private boolean initialized;
     private final List<String> uninitPermmitedCommands = new ArrayList<>();
-
     public XMLEditor() throws IOException {
         this.mainRoot = new XMLContainer("xmlDOCUMENT");
         this.currentNode = new XMLContainer();
@@ -30,7 +30,7 @@ class XMLEditor{
         initialized = false;
     }
 
-    private void init(String command, String[] params) {
+    private void initEditor(String command, String[] params) {
         while (!initialized) {
             if (params.length < 1 || !command.equals(CommandHelper.INIT_COMMAND)) {
                 Log.invalidCommandMsg();
@@ -84,6 +84,7 @@ class XMLEditor{
         return previousRootState.pop();
 
     }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -105,7 +106,7 @@ class XMLEditor{
         System.out.println(currentRoot);
     }
 
-    public void processCommands(String command, String[] params){
+    public void run(String command, String[] params){
         CommandProcessor processor = new CommandProcessor();
         if (uninitPermmitedCommands.contains(command)) {
             processor.processCommand(command, params);
@@ -113,7 +114,7 @@ class XMLEditor{
         }
 
         if (!initialized) {
-            init(command, params);
+            initEditor(command, params);
             return;
         }
 
@@ -122,28 +123,17 @@ class XMLEditor{
     }
 
     private class CommandProcessor {
+        private final Map<String, Consumer<String[]>> commandMap;
+
+        public CommandProcessor() {
+            commandMap = new HashMap<>();
+            initializeCommandMap();
+        }
+
         private void processCommand(String command, String[] params) {
-            switch (command) {
-                case "atrib" -> AddAttribute(params);
-                case "leaf" -> AddLeaf(params);
-                case "container" -> AddContainer(params);
-                case "addroot" -> AddRoot(params);
-                case "help" -> getHelp(params);
-                case "nextroot" -> nextRoot();
-                case "prevroot" -> prevRoot();
-                case "up" -> stepOut();
-                case "down" -> stepIn();
-                case "next" -> nextElem();
-                case "removec" -> removeCurrent();
-                case "printroot" -> printCurrentRoot();
-                case "printcurr" -> printCurrent();
-                case "printall" -> printEditor();
-                case "showcommands" -> showCommandList();
-                case "current" -> changeCurrentNode(params[0]);
-                case "top" -> top();
-                case "clear" -> clear();
-                case "revert" -> revert();
-            }
+            Consumer<String[]> commandHandler = commandMap.get(command);
+            if (commandHandler != null) commandHandler.accept(params);
+            else Log.invalidCommandMsg();
         }
 
         private void revert() {
@@ -171,7 +161,6 @@ class XMLEditor{
         private void showCommandList() {
             commandHelper.displayAllCommands();
         }
-
 
         private void removeCurrent() {
             currentNode.getParent().remove(currentNode);
@@ -235,8 +224,8 @@ class XMLEditor{
             Log.leafAddedMsg(params[0], val);
         }
 
-        private void changeCurrentNode(String tagName) {
-            XMLContainer target = findNode(currentRoot, tagName);
+        private void changeCurrentNode(String[] tagName) {
+            XMLContainer target = findNode(currentRoot, tagName[0]);
             if (target == null) {
                 System.out.println("Element not found");
                 return;
@@ -249,7 +238,28 @@ class XMLEditor{
             currentNode = currentRoot;
             Log.currentNodeMsg(currentNode.getTag());
         }
-    }
 
+        private void initializeCommandMap() {
+            commandMap.put("atrib", this::AddAttribute);
+            commandMap.put("leaf", this::AddLeaf);
+            commandMap.put("container", this::AddContainer);
+            commandMap.put("addroot", this::AddRoot);
+            commandMap.put("help", this::getHelp);
+            commandMap.put("nextroot", (params) -> nextRoot());
+            commandMap.put("prevroot", (params) -> prevRoot());
+            commandMap.put("up", (params) -> stepOut());
+            commandMap.put("down", (params) -> stepIn());
+            commandMap.put("next", (params) -> nextElem());
+            commandMap.put("removec", (params) -> removeCurrent());
+            commandMap.put("printroot", (params) -> printCurrentRoot());
+            commandMap.put("printcurr", (params) -> printCurrent());
+            commandMap.put("printall", (params) -> printEditor());
+            commandMap.put("showcommands", (params) -> showCommandList());
+            commandMap.put("current", this::changeCurrentNode);
+            commandMap.put("top", (params) -> top());
+            commandMap.put("clear", (params) -> clear());
+            commandMap.put("revert", (params) -> revert());
+        }
+    }
 
 }

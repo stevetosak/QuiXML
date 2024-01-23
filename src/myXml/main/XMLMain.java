@@ -19,7 +19,7 @@ public class XMLMain {
             if (command.equals("END")) break;
             String[] params = Arrays.copyOfRange(parts, 1, parts.length);
             try {
-                editor.processCommands(command, params);
+                editor.run(command, params);
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
