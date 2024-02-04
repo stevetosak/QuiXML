@@ -15,7 +15,8 @@ record Command(String name, String info) {
 }
 
 class CommandInitializer {
-    public static final String path = "C:\\Users\\stefa\\IdeaProjects\\XMLEditor_v1\\src\\myXml\\commands";
+    public static final String path = "C:\\Users\\stefa\\IdeaProjects\\XMLEditor_v1\\commands\\commandList";
+
     static List<Command> initCommands(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line = br.readLine();
@@ -30,33 +31,34 @@ class CommandInitializer {
 }
 
 public class CommandHelper {
-    private static List<Command> commandList;
-    private final Map<String,Command> commandToInfoMap;
     public static final String INIT_COMMAND = "addroot";
+    private static List<Command> commandList;
+    private final Map<String, Command> commandToInfoMap;
 
     public CommandHelper() throws IOException {
         commandToInfoMap = new HashMap<>();
         commandList = CommandInitializer.initCommands(new FileInputStream(CommandInitializer.path));
-        commandList.forEach(command -> commandToInfoMap.put(command.name(),command));
+        commandList.forEach(command -> commandToInfoMap.put(command.name(), command));
     }
 
-    public void getCommandHelp(String name){
+    public static List<String> getCommandList() {
+        return commandList.stream().map(Command::name).collect(Collectors.toList());
+    }
+
+    public void getCommandHelp(String name) {
         System.out.println(commandToInfoMap.get(name));
     }
 
-    public void displayAllCommands(){
+    public void displayAllCommands() {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < commandList.size(); i++) {
             sb.append(commandList.get(i).name()).append(", ");
-            if(i > 0 && i % 4 == 0) sb.append("\n");
+            if (i > 0 && i % 4 == 0) sb.append("\n");
         }
         sb.deleteCharAt(sb.lastIndexOf(","));
         sb.append("\n");
         System.out.println(sb);
         System.out.println("To get info about a command type \"help (command name)\"");
-    }
-    public static List<String> getCommandList(){
-        return commandList.stream().map(Command::name).collect(Collectors.toList());
     }
 
 }

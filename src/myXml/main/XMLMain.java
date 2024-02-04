@@ -1,5 +1,6 @@
 package myXml.main;
 
+import myXml.editor.XMLEditor;
 import myXml.util.Log;
 
 import java.io.BufferedReader;
