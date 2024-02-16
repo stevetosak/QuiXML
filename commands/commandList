@@ -1,0 +1,27 @@
+atrib;adds an attribute to the current XML element. (format: atrib name val)
+leaf;adds an XML element that has a value content. (format: addleaf tagName value) //(An XML leaf element can not contain other elements!)\\
+container;adds an XML container element inside of the current XML element. (format: container tagName)
+print-r;displays the currently selected root and all of the elements nested inside of it.
+print-c;displays only the current XML element you have selected.
+print-a;displays the whole xml document. (all of the root elements)
+root;adds a new root element in the editor. (format: addroot tagName)
+prev-root;returns to the previous element you had selected in the previous root element.
+revert;this command can be called after using the "clear" command. It reverts the document as it was before it was cleared.;permitted
+clear;clears the document
+next-root;saves the element you had last selected and goes to the next root in order.
+change-c;changes the current node to another node in the same root. (format: change-c (tagname))
+down;steps inside the currently selected container element. (if possible)
+up;steps outside the currently selected container element. (if possible)
+next;selects the next element that is in the same level of the currently selected element.
+top;selects the current root element
+remove-c;removes the currently selected element from the XML editor.
+write;writes the content that is currently in the document to a file.
+commands-all;displays all of the commands that this program offers;permitted
+commands-avb;displays the currently available commands;permitted
+show-templates;displays currently available templates;permitted
+template;loads a template xml code (format: template (name);permitted
+save-template;saves the commands up until now as a template with name (name). (format: save-template (name))
+delete-template; deletes the template with the name (name). (format: delete-template (name))
+ptog;toggles printing on/off after every command.
+help;displays info about a command;permitted
+
