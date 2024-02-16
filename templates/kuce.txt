@@ -1,0 +1,21 @@
+root Company
+container Employees
+up 
+atrib name Tosak
+down 
+leaf employee Stefan Toskovski
+leaf employee Riste Dzajkovski
+leaf employee Daniela Toskovska
+up 
+next 
+root Assets
+container saved
+atrib type items
+up 
+atrib used true
+container asset2
+help ptog
+ptog 
+atrib type kola
+container newsacasd
+atrib type kuce
