@@ -57,7 +57,7 @@ public class Log {
         System.out.println("Document is empty ");
         System.out.println("To get started you can either:");
         System.out.println("\t- Load from a template using \"template (name)\" ");
-        System.out.println("\t- Type \"addroot (tagName)\"  to add a tag to the document");
+        System.out.println("\t- Type \"root (tagName)\"  to add a tag to the document");
         System.out.println("Use \"commands-avb\" to show available commands");
     }
 
@@ -93,8 +93,10 @@ public class Log {
         StringBuilder sb = new StringBuilder();
         commandLog.forEach(s -> {
             String command = s.split("\\s+")[0];
-            if (!command.equals("template") && !command.equals("save-template"))
-                sb.append(s).append("\n");
+            if (!command.equals("template") && !command.equals("save-template")) {
+                sb.append(s).append('\n');
+            }
+
         });
         sb.deleteCharAt(sb.length() - 1);
         bw.write(sb.toString());
@@ -112,9 +114,7 @@ public class Log {
 
         try {
             try (Stream<Path> files = Files.list(directory)) {
-                files.forEach(file -> {
-                    System.out.println(file.getFileName());
-                });
+                files.forEach(file -> System.out.println(file.getFileName()));
             }
 
         } catch (IOException e) {

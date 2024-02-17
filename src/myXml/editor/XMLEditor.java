@@ -16,8 +16,8 @@ public class XMLEditor {
     public static String documentName = "XMLDocument";
     //region Data and Constructor
     private final Deque<XMLWrapper> previousRootState;// where you were in the document
-    private final int ROOT_STATE_CAPACITY = 5;
-    private final int DOCUMENT_STATE_CAPACITY = 5;
+    private final int ROOT_STATE_CAPACITY = 30;
+    private final int DOCUMENT_STATE_CAPACITY = 30;
     private final Deque<RootStateWrapper> previousDocumentState;
     private XMLContainer mainRoot;// points to all the root nodes;
     private XMLContainer currentNode;
@@ -48,7 +48,7 @@ public class XMLEditor {
             addRootUtil(params[0]);
             currentNode = currentRoot = getFirstRoot();
             initialized = true;
-            toPrint = true;
+            toPrint = false;
             Log.logCommand(command, params);
             Log.initSuccessMsg();
             Log.currentNodeMsg(currentNode.getTag());
@@ -214,8 +214,8 @@ public class XMLEditor {
 
         private void nextRoot() {
             XMLWrapper currentWrap = new XMLWrapper(currentRoot, currentNode);
-            if (previousRootState.size() == ROOT_STATE_CAPACITY) previousRootState.pollFirst();
-            previousRootState.push(currentWrap);
+            if (previousRootState.size() == ROOT_STATE_CAPACITY) previousRootState.removeLast();
+            previousRootState.addFirst(currentWrap);
             currentNode = currentRoot = getNextRoot();
         }
 
@@ -309,13 +309,8 @@ public class XMLEditor {
 
             if (node1 == null || node2 == null) return;
 
-            int id1 = node1.getParent().getChildren().indexOf(node1);
-            int id2 = node2.getParent().getChildren().indexOf(node2);
-
-            node1.getParent().getChildren().remove(id1);
-            node1.getParent().getChildren().add(id1, node2);
-            node2.getParent().getChildren().remove(id2);
-            node2.getParent().getChildren().add(id2, node1);
+            node1.setTag(tags[1]);
+            node2.setTag(tags[0]);
         }
 
         //privremeno
@@ -369,8 +364,8 @@ public class XMLEditor {
 
 
         private void clear() {
-            if (previousDocumentState.size() == DOCUMENT_STATE_CAPACITY) previousDocumentState.pollFirst();
-            previousDocumentState.push(new RootStateWrapper(mainRoot, initialized));
+            if (previousDocumentState.size() == DOCUMENT_STATE_CAPACITY) previousDocumentState.removeLast();
+            previousDocumentState.addFirst(new RootStateWrapper(mainRoot, initialized));
             initialized = false;
             mainRoot = new XMLContainer(documentName);
             currentNode = currentRoot = mainRoot;
