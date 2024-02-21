@@ -2,6 +2,7 @@ package myXml.xmlComponents;
 
 import java.util.Objects;
 
+public
 class Attribute {
     private final String name;
     private final String val;

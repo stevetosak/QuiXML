@@ -8,12 +8,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 class CommandInitializer {
-    public static final String path = "C:\\Users\\stefa\\IdeaProjects\\XMLEditor_v1\\commands\\commandList";
-
-    static List<Command> initCommands(InputStream is) throws IOException {
+    private static List<InfoCommand> initExec(InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line = br.readLine();
-        List<Command> commandList = new ArrayList<>();
+        List<InfoCommand> commandList = new ArrayList<>();
         while (line != null) {
             String[] parts = line.split(";");
             if (parts.length < 2) {
@@ -24,37 +22,43 @@ class CommandInitializer {
             if (parts.length >= 3) {
                 if (parts[2].equals("permitted")) available = true;
             }
-            commandList.add(new Command(parts[0], parts[1], available));
+            commandList.add(new InfoCommand(parts[0], parts[1], available));
             line = br.readLine();
         }
         return commandList;
+    }
+
+    static List<InfoCommand> initCommands(String path) throws IOException {
+        try (InputStream is = new FileInputStream(path)) {
+            return initExec(is);
+        }
     }
 }
 
 public class CommandHelper {
     public static final String INIT_COMMAND = "root";
-    private static final Map<String, Command> commandToInfoMap = new HashMap<>();
-    private static final List<Command> uninitCommands = new ArrayList<>();
-    private static List<Command> commandList;
-    
-    public static void init() throws IOException {
-        commandList = CommandInitializer.initCommands(new FileInputStream(CommandInitializer.path));
+    private static final Map<String, InfoCommand> commandToInfoMap = new HashMap<>();
+    private static final List<InfoCommand> uninitCommands = new ArrayList<>();
+    private static List<InfoCommand> commandList;
+
+    public static void init(String path) throws IOException {
+        commandList = CommandInitializer.initCommands(path);
         commandList.forEach(command -> {
-            commandToInfoMap.put(command.name(), command);
-            if (command.availableWhenUninitialized()) uninitCommands.add(command);
+            commandToInfoMap.put(command.getName(), command);
+            if (command.isPermittedWhenNotInit()) uninitCommands.add(command);
         });
     }
 
     public static List<String> getCommandList() {
-        return commandList.stream().map(Command::name).collect(Collectors.toList());
+        return commandList.stream().map(InfoCommand::getName).collect(Collectors.toList());
     }
 
     public static void getCommandHelp(String[] name) {
-        System.out.println(commandToInfoMap.get(name[0]));
+        System.out.println(commandToInfoMap.get(name[0]).commandFormat());
     }
 
     public static List<String> getAvailableCommands() {
-        return uninitCommands.stream().map(Command::name).collect(Collectors.toList());
+        return uninitCommands.stream().map(InfoCommand::getName).collect(Collectors.toList());
     }
 
     public static void displayAvailableCommands() {
@@ -65,10 +69,10 @@ public class CommandHelper {
         print(commandList);
     }
 
-    private static void print(List<Command> list) {
+    private static void print(List<InfoCommand> list) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            sb.append(list.get(i).name()).append(" | ");
+            sb.append(list.get(i).getName()).append(" | ");
             if (i > 0 && i % 4 == 0) sb.append("\n");
         }
         sb.append("\n");

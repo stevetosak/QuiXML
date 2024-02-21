@@ -1,43 +1,33 @@
 package myXml.xmlComponents;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 public class XMLLeaf extends XMLComponent {
-    private final Set<Attribute> attributes = new LinkedHashSet<>();
-    private final String value;
+    private final String textValue;
 
-    public XMLLeaf(String tag, String value) {
+    public XMLLeaf(String tag, String textValue) {
         super(tag);
-        this.value = value;
+        this.textValue = textValue;
     }
 
     @Override
-    public void addAttribute(String name, String val) {
-        attributes.add(new Attribute(name, val));
-    }
-
-    @Override
-    public String xmlString(int depth) {
+    public String generateXml(int depth) {
         StringBuilder sb = new StringBuilder();
-
         //open tag
         sb.append("\t".repeat(depth)).append("<").append(tag);
-        attributes.forEach(atb -> sb.append(" ").append(atb.toString()));
-        sb.append(">");
+        attributes.forEach(atb -> sb.append(atb.toString()));
+        sb.append(">").append("\n");
 
         //val
-        sb.append(value);
-
+        sb.append("\t".repeat(depth)).append(textValue).append("\n");
+        children.forEach(child -> sb.append(child.generateXml(depth + 1)));
         //closed tag
-        sb.append("</").append(tag).append(">").append("\n");
+        sb.append("\t".repeat(depth)).append("</").append(tag).append(">").append("\n");
 
         return sb.toString();
     }
 
     @Override
     public String toString() {
-        return xmlString(0);
+        return generateXml(0);
     }
 }
 

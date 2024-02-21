@@ -1,0 +1,15 @@
+cmd-all
+help delete-t
+root FINKI
+root TMF
+root FEIT
+atrib hasZgrada false
+next-r
+atrib hasZgrada true
+next 
+atrib hasZgrada true
+container classrooms
+remove-c 
+container Classrooms
+leaf classroom 223
+atrib sprat 2

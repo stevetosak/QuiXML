@@ -1,6 +1,0 @@
-root html
-container head
-container meta
-atrib charset UTF-8
-leaf title Title
-root body

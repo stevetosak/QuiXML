@@ -1,6 +1,8 @@
 package myXml.editor;
 
+import myXml.main.XMLMain;
 import myXml.util.*;
+import myXml.xmlComponents.XMLComponent;
 import myXml.xmlComponents.XMLContainer;
 import myXml.xmlComponents.XMLLeaf;
 
@@ -11,26 +13,27 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+
+//da nemat previous root state se da sa push vo eden stack
+
 public class XMLEditor {
 
-    public static String documentName = "XMLDocument";
+
     //region Data and Constructor
-    private final Deque<XMLWrapper> previousRootState;// where you were in the document
-    private final int ROOT_STATE_CAPACITY = 30;
+    public static String documentName = "XMLDocument";
     private final int DOCUMENT_STATE_CAPACITY = 30;
-    private final Deque<RootStateWrapper> previousDocumentState;
+    private final Deque<DocumentStateWrapper> documentState;
     private XMLContainer mainRoot;// points to all the root nodes;
-    private XMLContainer currentNode;
+    private XMLComponent currentNode;
     private XMLContainer currentRoot;
     private boolean initialized;
     private boolean toPrint = false;
 
     public XMLEditor() throws IOException {
-        previousRootState = new ArrayDeque<>(ROOT_STATE_CAPACITY);
-        previousDocumentState = new ArrayDeque<>(DOCUMENT_STATE_CAPACITY);
+        documentState = new ArrayDeque<>(DOCUMENT_STATE_CAPACITY);
         this.mainRoot = new XMLContainer(documentName);
         this.currentNode = new XMLContainer();
-        CommandHelper.init();
+        CommandHelper.init("commands/commandList");
         initialized = false;
     }
     //endregion
@@ -46,7 +49,7 @@ public class XMLEditor {
             }
 
             addRootUtil(params[0]);
-            currentNode = currentRoot = getFirstRoot();
+            resetToTop();
             initialized = true;
             toPrint = false;
             Log.logCommand(command, params);
@@ -55,12 +58,16 @@ public class XMLEditor {
         }
     }
 
-    private XMLContainer findNode(XMLContainer crnt, String targetTag) {
+    private void resetToTop() {
+        currentNode = currentRoot = getFirstRoot();
+    }
+
+    private XMLComponent findNode(XMLContainer crnt, String targetTag) {
         if (crnt.getTag().equals(targetTag)) return crnt;
-        Queue<XMLContainer> queue = new LinkedList<>();
+        Queue<XMLComponent> queue = new LinkedList<>();
         queue.add(crnt);
         while (!queue.isEmpty()) {
-            XMLContainer curr = queue.poll();
+            XMLComponent curr = queue.poll();
             if (curr.getTag().equals(targetTag)) return curr;
             queue.addAll(curr.getChildren());
         }
@@ -68,22 +75,22 @@ public class XMLEditor {
     }
 
     private XMLContainer getNextRoot() {
-        List<XMLContainer> children = mainRoot.getChildren();
+        List<XMLComponent> children = mainRoot.getChildren();
         int index = children.indexOf(currentRoot);
         if (++index > children.size() - 1) index = 0;
-        return children.get(index);
+        return (XMLContainer) children.get(index);
     }
 
     //todo da ne sa vrakjat ako si vo istiot elem
-    private XMLWrapper getPreviousRootState() {
-        if (previousRootState.isEmpty()) throw new EmptyStackException();
+    private DocumentStateWrapper getPreviousRootState() {
+        if (documentState.isEmpty()) throw new EmptyStackException();
         System.out.println("Went back");
-        return previousRootState.pop();
+        return documentState.pop();
 
     }
 
     private XMLContainer getFirstRoot() {
-        XMLContainer result = mainRoot.getFirstChild();
+        XMLContainer result = (XMLContainer) mainRoot.getFirstChild();
         if (result.equals(mainRoot)) return null;
         return result;
     }
@@ -127,11 +134,11 @@ public class XMLEditor {
     }
 
     public void printCurrent() {
-        System.out.println(currentNode);
+        System.out.println(currentNode.toString());
     }
 
     public void printCurrentRoot() {
-        System.out.println(currentRoot);
+        System.out.println(currentRoot.getTag());
     }
 
     private void writeToFile() {
@@ -150,10 +157,9 @@ public class XMLEditor {
     private class CommandProcessor {
 
         //region Data and Constructor
-        private final Map<String, Consumer<String[]>> commandMap;
+        private static final Map<String, Consumer<String[]>> commandMap = new HashMap<>();
 
         public CommandProcessor() {
-            commandMap = new HashMap<>();
             initializeCommandMap();
         }
         //endregion
@@ -168,7 +174,7 @@ public class XMLEditor {
         private void addLeaf(String[] params) {
             if (params.length < 2) throw new InvalidParameterException("Invalid number of parameters");
             String val = params.length > 2 ? Arrays.stream(params, 1, params.length).collect(Collectors.joining(" ")) : params[1];
-            currentNode.addValue(new XMLLeaf(params[0], val));
+            currentNode.addChild(new XMLLeaf(params[0], val));
             Log.leafAddedMsg(params[0], val);
         }
 
@@ -182,7 +188,6 @@ public class XMLEditor {
         private void addRoot(String[] params) {
             if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
             addRootUtil(params[0]);
-            nextRoot();
             Log.rootAdded(params[0]);
         }
         //endregion
@@ -213,14 +218,14 @@ public class XMLEditor {
         //region Traversal Methods
 
         private void nextRoot() {
-            XMLWrapper currentWrap = new XMLWrapper(currentRoot, currentNode);
-            if (previousRootState.size() == ROOT_STATE_CAPACITY) previousRootState.removeLast();
-            previousRootState.addFirst(currentWrap);
+            DocumentStateWrapper currentWrap = new DocumentStateWrapper(currentRoot, currentNode, initialized);
+            if (documentState.size() == DOCUMENT_STATE_CAPACITY) documentState.removeLast();
+            documentState.addFirst(currentWrap);
             currentNode = currentRoot = getNextRoot();
         }
 
         private void prevRoot() {
-            XMLWrapper prevState = getPreviousRootState();
+            DocumentStateWrapper prevState = getPreviousRootState();
             currentRoot = prevState.root();
             currentNode = prevState.element();
         }
@@ -237,6 +242,10 @@ public class XMLEditor {
 
         private void nextInLevel() {
             currentNode = currentNode.getNext();
+            if (currentNode == null) {
+                System.out.println("Document is empty");
+                return;
+            }
             Log.currentNodeMsg(currentNode.getTag());
         }
 
@@ -246,7 +255,7 @@ public class XMLEditor {
         }
 
         private void changeCurrentNode(String[] tagName) {
-            XMLContainer target = findNode(currentRoot, tagName[0]);
+            XMLComponent target = findNode(currentRoot, tagName[0]);
             if (target == null) {
                 System.out.println("Element not found");
                 return;
@@ -267,8 +276,8 @@ public class XMLEditor {
             commandMap.put("container", this::addContainer);
             commandMap.put("root", this::addRoot);
             commandMap.put("help", CommandHelper::getCommandHelp);
-            commandMap.put("next-root", (params) -> nextRoot());
-            commandMap.put("prev-root", (params) -> prevRoot());
+            commandMap.put("next-r", (params) -> nextRoot());
+            commandMap.put("prev-r", (params) -> prevRoot());
             commandMap.put("up", (params) -> stepOut());
             commandMap.put("down", (params) -> stepIn());
             commandMap.put("next", (params) -> nextInLevel());
@@ -276,24 +285,26 @@ public class XMLEditor {
             commandMap.put("print-r", (params) -> printCurrentRoot());
             commandMap.put("print-c", (params) -> printCurrent());
             commandMap.put("print-a", (params) -> printEditor());
-            commandMap.put("commands-all", (params) -> CommandHelper.displayAllCommands());
-            commandMap.put("commands-avb", (params) -> CommandHelper.displayAvailableCommands());
-            commandMap.put("change-c", this::changeCurrentNode);
-            commandMap.put("top", (params) -> top());
+            commandMap.put("cmd-all", (params) -> CommandHelper.displayAllCommands());
+            commandMap.put("cmd-avb", (params) -> CommandHelper.displayAvailableCommands());
+            commandMap.put("nav", this::changeCurrentNode);
+            commandMap.put("top-c", (params) -> top());
             commandMap.put("clear", (params) -> clear());
             commandMap.put("revert", (params) -> revert());
             commandMap.put("swap", this::swap);
-            commandMap.put("template", this::loadTemplate);
+            commandMap.put("load-t", this::loadTemplate);
             commandMap.put("write", (params) -> writeToFile());
-            commandMap.put("save-template", this::createTemplate);
-            commandMap.put("delete-template", this::deleteTemplate);
-            commandMap.put("show-templates", (params) -> Log.showTemplates());
+            commandMap.put("save-t", this::createTemplate);
+            commandMap.put("delete-t", this::deleteTemplate);
+            commandMap.put("show-t", (params) -> Log.showTemplates());
             commandMap.put("ptog", (params) -> togglePrint());
+            commandMap.put("top-d", (params) -> resetToTop());
+            commandMap.put("clear-log", (params) -> Log.clearLog());
         }
 
         private void revert() {
-            if (!previousDocumentState.isEmpty()) {
-                RootStateWrapper prevstate = previousDocumentState.pop();
+            if (!documentState.isEmpty()) {
+                DocumentStateWrapper prevstate = documentState.pop();
                 mainRoot = prevstate.root();
                 initialized = prevstate.initialized();
                 Log.revertLog();
@@ -304,8 +315,8 @@ public class XMLEditor {
 
         private void swap(String[] tags) {
             if (tags.length < 2) throw new InvalidParameterException("Invalid number of parameters");
-            XMLContainer node1 = findNode(mainRoot, tags[0]);
-            XMLContainer node2 = findNode(mainRoot, tags[1]);
+            XMLComponent node1 = findNode(mainRoot, tags[0]);
+            XMLComponent node2 = findNode(mainRoot, tags[1]);
 
             if (node1 == null || node2 == null) return;
 
@@ -313,43 +324,16 @@ public class XMLEditor {
             node2.setTag(tags[0]);
         }
 
-        //privremeno
-        // todo da sa sredit za pojke templates
         private void loadTemplate(String[] name) {
-            clear();
-            BufferedReader br;
             try {
-                br = new BufferedReader(new InputStreamReader
-                        (new FileInputStream("C:\\Users\\stefa\\IdeaProjects\\XMLEditor_v1\\templates\\" + name[0] + ".txt")));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-
-            String line;
-            try {
-                line = br.readLine();
+                XMLMain.commandLoop(XMLEditor.this, new FileInputStream("templates/" + name[0] + ".txt"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            while (line != null && !line.isEmpty()) {
-                String[] parts = line.split("\\s+");
-                String command = parts[0];
-                String[] params = Arrays.copyOfRange(parts, 1, parts.length);
-                processCommand(command, params);
-                try {
-                    line = br.readLine();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            initialized = true;
-            System.out.println("Generated HTML template");
-            printEditor();
         }
 
-
         private void removeCurrent() {
-            currentNode.getParent().remove(currentNode);
+            currentNode.getParent().removeChildNode(currentNode);
             currentNode = currentNode.getParent();
             Log.currentNodeMsg(currentNode.getTag());
         }
@@ -362,10 +346,9 @@ public class XMLEditor {
             }
         }
 
-
         private void clear() {
-            if (previousDocumentState.size() == DOCUMENT_STATE_CAPACITY) previousDocumentState.removeLast();
-            previousDocumentState.addFirst(new RootStateWrapper(mainRoot, initialized));
+            if (documentState.size() == DOCUMENT_STATE_CAPACITY) documentState.removeLast();
+            documentState.addFirst(new DocumentStateWrapper(mainRoot, currentNode, initialized));
             initialized = false;
             mainRoot = new XMLContainer(documentName);
             currentNode = currentRoot = mainRoot;
@@ -375,7 +358,6 @@ public class XMLEditor {
 
         private void togglePrint() {
             toPrint = !toPrint;
-            if (toPrint) printEditor();
             System.out.println("Printing the document after every command is: " + toPrint);
         }
 

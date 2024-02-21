@@ -5,24 +5,26 @@ print-r;displays the currently selected root and all of the nodes nested inside 
 print-c;displays only the current XML node you have selected.
 print-a;displays the whole xml document. (all of the root nodes)
 root;adds a new root node in the editor. (format: root tagName)
-prev-root;returns to the previous node you had selected in the previous root node.
-next-root;saves the node you had last selected and goes to the next root in order.
+prev-r;returns to the previous node you had selected in the previous root node.
+next-r;saves the node you had last selected and goes to the next root in order.
 revert;this command can be called after using the "clear" command. It reverts the document as it was before it was cleared.;permitted
 clear;clears the document
-change-c;changes the current node to another node in the same root. (format: change-c (tagName))
+nav;changes the current node to another node in the same root. (format: nav (tagName))
 swap;swaps 2 nodes passed by their tag name (format: swap (tag1) (tag2)
 down;steps inside the currently selected container node. (if possible)
 up;steps outside the currently selected container node. (if possible)
 next;selects the next node that is in the same level of the currently selected node.(this command is analogous to the next-root command if the currently selected element is a root element)
-top;selects the current root node as the current node.
+top-c;selects the current root node as the current node.
+top-d;selects the first root node in the document as the current node.
 remove-c;removes the currently selected node from the XML editor.
 write;writes the content that is currently in the document to a file.
-commands-all;displays all of the commands that this program offers;permitted
-commands-avb;displays the currently available commands;permitted
-show-templates;displays currently available templates;permitted
-template;loads a template xml code (format: template (name);permitted
-save-template;saves the commands up until now as a template with name (name). (format: save-template (name))
-delete-template;deletes the template with the name (name). (format: delete-template (name));permitted
+cmd-all;displays all of the commands that this program offers;permitted
+cmd-avb;displays the currently available commands;permitted
+show-t;displays currently available templates;permitted
+load-t;loads a template xml code (format: template (name);permitted
+save-t;saves the commands up until now as a template with name (name). (format: save-template (name))
+delete-t;deletes the template with the name (name). (format: delete-template (name));permitted
+clear-log;clears the commands written in the log up until now.;permitted
 ptog;toggles printing on/off after every command.
 help;displays info about a command;permitted
 
