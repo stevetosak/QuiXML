@@ -1,13 +1,11 @@
 package myXml.xmlComponents;
 
+import myXml.util.DeepCopy;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class XMLContainer extends XMLComponent {
-    public XMLContainer() {
-        super("");
-    }
-
     public XMLContainer(String tag) {
         super(tag);
     }
@@ -16,7 +14,6 @@ public class XMLContainer extends XMLComponent {
     public String toString() {
         return generateXml(0);
     }
-
 
     @Override
     public String generateXml(int depth) {
@@ -35,5 +32,6 @@ public class XMLContainer extends XMLComponent {
 
         return sb.toString();
     }
+
 
 }

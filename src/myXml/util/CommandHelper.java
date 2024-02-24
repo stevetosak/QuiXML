@@ -1,10 +1,7 @@
 package myXml.util;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class CommandInitializer {
@@ -14,18 +11,10 @@ class CommandInitializer {
         List<InfoCommand> commandList = new ArrayList<>();
         while (line != null) {
             String[] parts = line.split(";");
-            if (parts.length < 2) {
-                line = br.readLine();
-                continue;
-            }
-            boolean available = false;
-            if (parts.length >= 3) {
-                if (parts[2].equals("permitted")) available = true;
-            }
-            commandList.add(new InfoCommand(parts[0], parts[1], available));
+            if (parts.length >= 2) commandList.add(new InfoCommand(parts[0], parts[1]));
             line = br.readLine();
         }
-        return commandList;
+        return commandList.stream().sorted(Comparator.comparing(InfoCommand::getName)).collect(Collectors.toList());
     }
 
     static List<InfoCommand> initCommands(String path) throws IOException {
@@ -36,17 +25,13 @@ class CommandInitializer {
 }
 
 public class CommandHelper {
-    public static final String INIT_COMMAND = "root";
     private static final Map<String, InfoCommand> commandToInfoMap = new HashMap<>();
-    private static final List<InfoCommand> uninitCommands = new ArrayList<>();
     private static List<InfoCommand> commandList;
 
     public static void init(String path) throws IOException {
         commandList = CommandInitializer.initCommands(path);
-        commandList.forEach(command -> {
-            commandToInfoMap.put(command.getName(), command);
-            if (command.isPermittedWhenNotInit()) uninitCommands.add(command);
-        });
+        commandList.forEach(command -> commandToInfoMap.put(command.getName(), command));
+
     }
 
     public static List<String> getCommandList() {
@@ -55,14 +40,6 @@ public class CommandHelper {
 
     public static void getCommandHelp(String[] name) {
         System.out.println(commandToInfoMap.get(name[0]).commandFormat());
-    }
-
-    public static List<String> getAvailableCommands() {
-        return uninitCommands.stream().map(InfoCommand::getName).collect(Collectors.toList());
-    }
-
-    public static void displayAvailableCommands() {
-        print(uninitCommands);
     }
 
     public static void displayAllCommands() {

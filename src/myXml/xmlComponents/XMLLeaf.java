@@ -1,5 +1,7 @@
 package myXml.xmlComponents;
 
+import myXml.util.DeepCopy;
+
 public class XMLLeaf extends XMLComponent {
     private final String textValue;
 
@@ -29,5 +31,7 @@ public class XMLLeaf extends XMLComponent {
     public String toString() {
         return generateXml(0);
     }
+
+
 }
 

@@ -1,0 +1,12 @@
+add gore
+add v1
+up 
+add v2
+up 
+add v3
+root dole
+root pole
+nav pole
+add tekst mnoguuuua asd a s ad
+top
+print-a

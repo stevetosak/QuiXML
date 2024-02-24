@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class XMLComponent {
     protected String tag;
@@ -47,6 +48,14 @@ public abstract class XMLComponent {
 
     }
 
+    public XMLComponent getPrev() {
+        if (parent == null) return null;
+        List<XMLComponent> siblings = parent.getChildren();
+        int idx = siblings.indexOf(this);
+        if (--idx < 0) idx = siblings.size() - 1;
+        return siblings.get(idx);
+    }
+
     public List<XMLComponent> getChildren() {
         return children;
     }
@@ -64,10 +73,6 @@ public abstract class XMLComponent {
         this.parent = parent;
     }
 
-//    public List<XMLLeaf> getElements() {
-//        return elements;
-//    }
-
     public void addChild(XMLComponent node) {
         node.setParent(this);
         children.add(node);
@@ -80,6 +85,21 @@ public abstract class XMLComponent {
 
     public void removeChildNode(XMLComponent current) {
         children.remove(current);
+    }
+
+    public boolean removeAttributeWithName(String attribName) {
+        return attributes.removeIf(atb -> atb.getName().equals(attribName));
+    }
+
+    public boolean removeLastAttribute() {
+        if (!attributes.isEmpty()) {
+            return attributes.remove(attributes
+                    .stream()
+                    .collect(Collectors.toList())
+                    .getLast()
+            );
+        } else return false;
+
     }
 
 }

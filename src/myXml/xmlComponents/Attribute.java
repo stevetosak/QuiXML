@@ -12,6 +12,14 @@ class Attribute {
         this.val = val;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getVal() {
+        return val;
+    }
+
     @Override
     public String toString() {
         return " " + name + "=\"" + val + "\"";

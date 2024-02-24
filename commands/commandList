@@ -1,30 +1,31 @@
-atrib;adds an attribute to the currently selected XML node. (format: atrib name val)
-leaf;adds an XML node that has a value content. (format: leaf tagName value) //(An XML leaf node can not contain other XML nodes)\\
-container;adds an XML container node as a child of the currently selected node. (format: container tagName)
+add;adds an Xml node to as a child of the currently selected node.The type of node depends on the number of parameters given.The first parameter is the name of the node to be created.The second parameter is optional and adds text value to the node.If this function is called with only one parameter it is equivalent to the container command.If it is called with two parameters it is equivalent to the leaf command.[format: add (tagName) ?(textValue)?]
+atrib;adds an attribute to the currently selected XML node. [format: atrib (name) (val)]
+leaf;adds an XML node that has a value content.[format: leaf (tagName) (value)]
+container;adds an XML container node as a child of the currently selected node. [format: container (tagName)]
 print-r;displays the currently selected root and all of the nodes nested inside of it.
 print-c;displays only the current XML node you have selected.
-print-a;displays the whole xml document. (all of the root nodes)
+print-a;displays the whole xml document.
 root;adds a new root node in the editor. (format: root tagName)
-prev-r;returns to the previous node you had selected in the previous root node.
-next-r;saves the node you had last selected and goes to the next root in order.
-revert;this command can be called after using the "clear" command. It reverts the document as it was before it was cleared.;permitted
-clear;clears the document
+clear;clears the document.
 nav;changes the current node to another node in the same root. (format: nav (tagName))
 swap;swaps 2 nodes passed by their tag name (format: swap (tag1) (tag2)
 down;steps inside the currently selected container node. (if possible)
 up;steps outside the currently selected container node. (if possible)
-next;selects the next node that is in the same level of the currently selected node.(this command is analogous to the next-root command if the currently selected element is a root element)
+next;selects the next node that is in the same level of the currently selected node.
+back;selects the previous node that is in the same level of the currently selected node.
 top-c;selects the current root node as the current node.
 top-d;selects the first root node in the document as the current node.
 remove-c;removes the currently selected node from the XML editor.
+undo; asd
+redo;asd
 write;writes the content that is currently in the document to a file.
-cmd-all;displays all of the commands that this program offers;permitted
-cmd-avb;displays the currently available commands;permitted
-show-t;displays currently available templates;permitted
-load-t;loads a template xml code (format: template (name);permitted
+cmd-all;displays all of the commands that this program offers
+show-t;displays currently available templates;
+load-t;loads a template xml code (format: template (name)
 save-t;saves the commands up until now as a template with name (name). (format: save-template (name))
-delete-t;deletes the template with the name (name). (format: delete-template (name));permitted
-clear-log;clears the commands written in the log up until now.;permitted
+del-t;deletes the template with the name (name). (format: delete-template (name))
+del-a;removes an attribute from the currently selected node.If no arguments are passed, the last attribute will be removed.If one argument is passed, the attribute with the name passed by the argument wil be removed,if it exists.[format: del-a ?(attribName)?]
+clear-log;clears the commands written in the log up until now.
 ptog;toggles printing on/off after every command.
-help;displays info about a command;permitted
+help;displays info about a command
 

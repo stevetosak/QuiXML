@@ -56,10 +56,8 @@ public class Log {
 
     public static void emptyDocumentMsg() {
         System.out.println("Document is empty ");
-        System.out.println("To get started you can either:");
+        System.out.println("\t - Type \"help add\" ");
         System.out.println("\t- Load from a template using \"load-t (name)\" ");
-        System.out.println("\t- Type \"root (tagName)\"  to add a tag to the document");
-        System.out.println("Use \"cmd-avb\" to show available commands");
     }
 
     public static void showLoggedCommands() {
