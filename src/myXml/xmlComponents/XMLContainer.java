@@ -33,5 +33,15 @@ public class XMLContainer extends XMLComponent {
         return sb.toString();
     }
 
+    @Override
+    public XMLComponent deepCopy() {
+        XMLContainer copy = new XMLContainer(tag);
+        copy.addAllAttributes(attributes);
+        for (XMLComponent child : children) {
+            copy.addChild(child.deepCopy());
+        }
+        return copy;
+    }
+
 
 }

@@ -1,14 +1,17 @@
 package myXml.util;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Stack;
 import java.util.stream.Stream;
 
-// ke pram undo za ako izbrisis template po greska
 // druga klasa za cuvanje dosega komandi ova klasa samo za poraki
 
 public class Log {
@@ -16,20 +19,24 @@ public class Log {
     private static LinkedList<RawCommand> commandLog = new LinkedList<>();
 
     public static void logCommand(String commandName, String[] params) {
-        commandLog.add(new RawCommand(commandName, params));
+        if (!commandName.equals("show-logs"))
+            commandLog.add(new RawCommand(commandName, params));
     }
 
-    public static void initSuccessMsg() {
-        System.out.println("Initialization successful");
-        System.out.println("To see the all of the commands type \"cmd-all\" :)");
+    public static void updateCommandLog(LinkedList<RawCommand> commands) {
+        commandLog = commands;
     }
 
-    public static void currentNodeMsg(String currentNodeTag) {
-        System.out.println("Current node is: " + currentNodeTag);
+    public static LinkedList<RawCommand> getCommandLog() {
+        return commandLog;
+    }
+
+    public static void currentNodeMsg(String currentNodeTag, String currentRootTag) {
+        System.out.println("Current node is: " + currentNodeTag + " in " + currentRootTag);
     }
 
     public static void leafAddedMsg(String name, String value) {
-        System.out.println("Added leaf element: " + name + " with the content inside: " + value);
+        System.out.println("Added leaf node: " + name + " with the content inside: " + value);
     }
 
     public static void attributeAddedMsg(String name, String value) {
@@ -48,20 +55,23 @@ public class Log {
         System.out.println("Invalid command");
     }
 
-    public static void documentClearedMsg() {
-        System.out.println("Document cleared");
-        emptyDocumentMsg();
-        System.out.println("You can revert to the previous state of the document by typing \"revert\"");
-    }
 
     public static void emptyDocumentMsg() {
-        System.out.println("Document is empty ");
-        System.out.println("\t - Type \"help add\" ");
-        System.out.println("\t- Load from a template using \"load-t (name)\" ");
+        System.out.println("Document is empty");
+        System.out.println("\t- Type \"add (containerName) ?(textContent)? to add an XML node to the document.\"");
+        System.out.println("\t- Type \"load-t (templateName)\" to load a document from a template.");
+        System.out.println("\t- Type \"cmd-all\" to see the list of commands.");
+        System.out.println("To toggle printing on/off type: \"ptog\"");
     }
 
     public static void showLoggedCommands() {
-        commandLog.forEach(System.out::println);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Logged commands: [");
+        commandLog.forEach(command -> sb.append("\"").append(command.commandFormat()).append("\","));
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.append("]");
+        System.out.println(sb);
+
     }
 
     private static String createFileTemplate(String name) {
@@ -86,21 +96,45 @@ public class Log {
         return filePath.toString();
     }
 
+    public static void clearTemplates() {
+        Path templatesDir = Paths.get("templates");
+        if (!Files.exists(templatesDir)) return;
 
-    public static void saveTemplate(String name) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(createFileTemplate(name)));
+        try (Stream<Path> filesInDir = Files.walk(templatesDir)) {
+            filesInDir.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getLastCommandName() {
+        return commandLog.get(commandLog.size() - 2).getName();
+    }
+
+    private static boolean isLoggable(String commandName) {
+        String[] unLoggableCommands = {
+                "load-t", "ptog", "print-r", "print-c", "print-a",
+                "write", "cmd-all", "show-t", "del-t", "help", "clear"
+        };
+
+        for (String cmd : unLoggableCommands) {
+            if (commandName.equals(cmd)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void saveTemplate(String templateName) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(createFileTemplate(templateName)));
         StringBuilder sb = new StringBuilder();
         commandLog.forEach(command -> {
             String commandName = command.getName();
-            if (!commandName.equals("load")
-                    && !commandName.equals("save-t")
-                    && !commandName.equals("ptog")
-                    && !commandName.equals("delete-t")) {
+            if (isLoggable(commandName)) {
                 sb.append(command.commandFormat()).append('\n');
             }
         });
-        sb.append("top").append("\n");
-        sb.append("print-a").append("\n");
+        sb.append("top-d").append("\n");
 
         sb.deleteCharAt(sb.length() - 1);
         bw.write(sb.toString());
@@ -130,7 +164,7 @@ public class Log {
         System.out.println("Command log successfully cleared");
     }
 
-    public static void revertLog() {
+    public static void revertLog() { //TODO
         if (previousLogState.empty()) {
             System.out.println("No previous logs");
             return;

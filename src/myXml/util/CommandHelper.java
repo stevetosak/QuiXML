@@ -34,8 +34,8 @@ public class CommandHelper {
 
     }
 
-    public static List<String> getCommandList() {
-        return commandList.stream().map(InfoCommand::getName).collect(Collectors.toList());
+    public static List<InfoCommand> getCommandList() {
+        return new ArrayList<>(commandList);
     }
 
     public static void getCommandHelp(String[] name) {

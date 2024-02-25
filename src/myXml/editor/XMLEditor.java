@@ -30,18 +30,16 @@ public class XMLEditor {
         this.mainRoot = new XMLContainer(documentName);
         currentNode = currentRoot = mainRoot;
         CommandHelper.init("commands/commandList");
-        toPrint = true;
-
     }
     //endregion
 
     //region Initialization and Helper Methods
 
     private void resetToTop() {
-        currentNode = currentRoot = getFirstRoot();
+        currentNode = currentRoot = mainRoot;
     }
 
-    private XMLComponent findNode(XMLComponent node, String targetTag) {
+    private XMLComponent bfs(XMLComponent node, String targetTag) {
         if (node.getTag().equals(targetTag)) return node;
         Queue<XMLComponent> queue = new LinkedList<>();
         queue.add(node);
@@ -53,22 +51,10 @@ public class XMLEditor {
         return null;
     }
 
-    private XMLContainer getFirstRoot() {
-        XMLContainer result = (XMLContainer) mainRoot.getFirstChild();
-        if (result.equals(mainRoot)) return null;
-        return result;
+    public void run(String command, String[] params, boolean logAndPrint) {
+        commandProcessor.processCommand(command, params, logAndPrint);
     }
 
-    public void run(String command, String[] params) {
-        commandProcessor.processCommand(command, params);
-    }
-
-    private void addRootUtil(String tagName) {
-        XMLContainer element = new XMLContainer(tagName);
-        element.setParent(mainRoot);
-        mainRoot.addChild(element);
-        currentRoot = element;
-    }
     //endregion
 
     //region Printing and ToString
@@ -83,11 +69,12 @@ public class XMLEditor {
         System.out.println("------------------------------");
         System.out.print(this);
         System.out.println("------------------------------");
-        Log.currentNodeMsg(currentNode.getTag());
+        Log.currentNodeMsg(currentNode.getTagNameFormatted(),
+                (currentRoot.equals(currentNode) ? mainRoot.getTagNameFormatted() : currentRoot.getTagNameFormatted()));
     }
 
     public void printCurrent() {
-        System.out.println(currentNode.toString());
+        System.out.println(currentNode.getTagNameFormatted());
     }
 
     public void printCurrentRoot() {
@@ -103,6 +90,22 @@ public class XMLEditor {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void clearLog() {
+        System.out.println("Are you sure you want to delete all templates? This action can not be undone.\nType 'y' to confirm.");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            char ans = (char) br.read();
+            if (ans == 'y') {
+                Log.clearTemplates();
+                System.out.println("Deleted all templates.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     //endregion
@@ -126,9 +129,9 @@ public class XMLEditor {
             commandMap.put("print-c", (params) -> printCurrent());
             commandMap.put("print-a", (params) -> printEditor());
             commandMap.put("cmd-all", (params) -> CommandHelper.displayAllCommands());
-            commandMap.put("nav", this::changeCurrentNode);
+            commandMap.put("nav", this::nav);
             commandMap.put("top-c", (params) -> top());
-            commandMap.put("clear", (params) -> clear());
+            commandMap.put("clear-d", (params) -> clear());
             commandMap.put("swap", this::swap);
             commandMap.put("load-t", this::loadTemplate);
             commandMap.put("write", (params) -> writeToFile());
@@ -138,11 +141,14 @@ public class XMLEditor {
             commandMap.put("ptog", (params) -> togglePrint());
             commandMap.put("top-d", (params) -> resetToTop());
             commandMap.put("clear-log", (params) -> Log.clearLog());
+            commandMap.put("revert-log", (params) -> Log.revertLog());
+            commandMap.put("show-logs", (params) -> Log.showLoggedCommands());
             commandMap.put("add", this::addNode);
             commandMap.put("back", (params) -> previousInLevel());
             commandMap.put("del-a", this::removeAttrib);
             commandMap.put("undo", (params) -> undo());
             commandMap.put("redo", (params) -> redo());
+            commandMap.put("clear-t", (params) -> clearLog());
         }
         //endregion
 
@@ -157,7 +163,7 @@ public class XMLEditor {
             if (params.length < 2) throw new InvalidParameterException("Invalid number of parameters");
             String val = params.length > 2 ? Arrays.stream(params, 1, params.length).collect(Collectors.joining(" ")) : params[1];
             currentNode.addChild(new XMLLeaf(params[0], val));
-            XMLComponent node = findNode(currentNode, params[0]);
+            XMLComponent node = bfs(currentNode, params[0]);
             if (currentNode == mainRoot) currentRoot = node;
             currentNode = node;
             Log.leafAddedMsg(params[0], val);
@@ -166,7 +172,7 @@ public class XMLEditor {
         private void addContainer(String[] params) {
             if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
             currentNode.addChild(new XMLContainer(params[0]));
-            XMLComponent node = findNode(currentNode, params[0]);
+            XMLComponent node = bfs(currentNode, params[0]);
             if (currentNode == mainRoot) currentRoot = node;
             currentNode = node;
             Log.containerAddedMsg(params[0]);
@@ -174,7 +180,9 @@ public class XMLEditor {
 
         private void addRoot(String[] params) {
             if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
-            addRootUtil(params[0]);
+            XMLContainer element = new XMLContainer(params[0]);
+            element.setParent(mainRoot);
+            mainRoot.addChild(element);
             Log.rootAdded(params[0]);
         }
 
@@ -188,39 +196,50 @@ public class XMLEditor {
         //region Command Processing and Help
 
 
-        void logDocumentState(String commandName, Deque<DocumentStateWrapper> stack, String[] banned) {
-            if (!commandName.equals(banned[0]) && !commandName.equals(banned[1])) {
-                if (stack.size() == MAX_STACK_CAPACITY) stack.removeLast();
-                DocumentStateWrapper wrapper = new DocumentStateWrapper(DeepCopy.replicate(mainRoot), currentRoot.getTag(), currentNode.getTag());
-                stack.push(wrapper);
-            }
+        void logDocumentState(String commandName, Deque<DocumentStateWrapper> stack, String dontLog) {
+            if (redoStack.isEmpty() && commandName.equals("redo") || commandName.equals(dontLog)) return;
+
+            if (stack.size() == MAX_STACK_CAPACITY) stack.removeLast();
+            DocumentStateWrapper wrapper = new DocumentStateWrapper(mainRoot.deepCopy(), currentRoot.getTag(), currentNode.getTag(), Log.getCommandLog());
+            stack.push(wrapper);
+
         }
 
         private void undo() {
             if (!undoStack.isEmpty()) {
-                logDocumentState("", redoStack, new String[]{"undo", "redo"});
+                logDocumentState("undo", redoStack, "");
                 DocumentStateWrapper prevState = undoStack.pop();
                 mainRoot = prevState.mainRoot();
-                currentRoot = findNode(mainRoot, prevState.currentRoot());
-                currentNode = findNode(mainRoot, prevState.currentNode()); // optimize
+                currentRoot = bfs(mainRoot, prevState.currentRootTag());
+                currentNode = bfs(mainRoot, prevState.currentNodeTag());// optimize
+                Log.updateCommandLog(prevState.commandLog());
             }
         }
 
         private void redo() {
-            if (!redoStack.isEmpty() && !undoStack.isEmpty()) {
-                DocumentStateWrapper prevState = redoStack.pop();
-                mainRoot = prevState.mainRoot();
-                currentRoot = findNode(mainRoot, prevState.currentRoot());
-                currentNode = findNode(mainRoot, prevState.currentNode());
+            if (Log.getLastCommandName().equals("undo") || Log.getLastCommandName().equals("redo")) {
+                if (!redoStack.isEmpty() && !undoStack.isEmpty()) {
+                    DocumentStateWrapper prevState = redoStack.pop();
+                    mainRoot = prevState.mainRoot();
+                    currentRoot = bfs(mainRoot, prevState.currentRootTag());
+                    currentNode = bfs(mainRoot, prevState.currentNodeTag());
+                    Log.updateCommandLog(prevState.commandLog());
+                }
+            } else {
+                redoStack.clear();
             }
         }
 
-        private void processCommand(String commandName, String[] params) {
+        private void processCommand(String commandName, String[] params, boolean logStateAndPrint) {
             Consumer<String[]> commandHandler = commandMap.get(commandName);
             if (commandHandler != null) {
-                Log.logCommand(commandName, params);
-                logDocumentState(commandName, undoStack, new String[]{"undo", "r"});//todo
+                Log.logCommand(commandName, params); // zaradi clear
+                if (logStateAndPrint) {
+                    logDocumentState(commandName, undoStack, "undo");
+                }
+
                 commandHandler.accept(params);
+                toPrint = logStateAndPrint;
                 if (toPrint) printEditor();
             } else Log.invalidCommandMsg();
         }
@@ -241,20 +260,17 @@ public class XMLEditor {
         private void stepOut() {
             currentNode = currentNode.getParent();
             findRoot(currentNode);
-            Log.currentNodeMsg(currentNode.getTag());
         }
 
         private void stepIn() {
             currentNode = currentNode.getFirstChild();
             findRoot(currentNode);
-            Log.currentNodeMsg(currentNode.getTag());
         }
 
         private void nextInLevel() {
             if (!documentEmpty()) {
                 currentNode = currentNode.getNext();
                 findRoot(currentNode);
-                Log.currentNodeMsg(currentNode.getTag());
             } else {
                 System.out.println("Document is empty");
             }
@@ -264,7 +280,6 @@ public class XMLEditor {
             if (!documentEmpty()) {
                 currentNode = currentNode.getPrev();
                 findRoot(currentNode);
-                Log.currentNodeMsg(currentNode.getTag());
             } else {
                 System.out.println("Document is empty");
             }
@@ -284,19 +299,38 @@ public class XMLEditor {
 
         private void top() {
             currentNode = currentRoot;
-            Log.currentNodeMsg(currentNode.getTag());
         }
 
-        private void changeCurrentNode(String[] tagName) {
-            XMLComponent target = findNode(mainRoot, tagName[0]);
+        private void nav(String[] params) {
+            if (params.length == 0) throw new InvalidParameterException("Invalid number of parameters");
+            else if (params.length == 1) selectFromDocument(params[0]);
+            else selectFromRoot(params[0], params[1]);
+
+        }
+
+        private void selectFromDocument(String tagName) {
+            XMLComponent target = bfs(mainRoot, tagName);
             if (target != null) {
                 currentNode = target;
                 findRoot(currentNode);
-                Log.currentNodeMsg(currentNode.getTag());
             } else {
                 System.out.println("Element not found");
             }
+        }
 
+        private void selectFromRoot(String targetNodeTagName, String rootTagName) {
+            XMLComponent targetRoot = bfs(mainRoot, rootTagName);
+            if (targetRoot != null) {
+                XMLComponent targetNode = bfs(targetRoot, targetNodeTagName);
+                if (targetNode != null) {
+                    currentNode = targetNode;
+                    currentRoot = targetRoot;
+                } else {
+                    System.out.println("Target node not found");
+                }
+            } else {
+                System.out.println("Target root not found");
+            }
         }
 
 
@@ -317,8 +351,8 @@ public class XMLEditor {
 
         private void swap(String[] tags) {
             if (tags.length < 2) throw new InvalidParameterException("Invalid number of parameters");
-            XMLComponent node1 = findNode(mainRoot, tags[0]);
-            XMLComponent node2 = findNode(mainRoot, tags[1]);
+            XMLComponent node1 = bfs(mainRoot, tags[0]);
+            XMLComponent node2 = bfs(mainRoot, tags[1]);
 
             if (node1 == null || node2 == null) return;
 
@@ -327,8 +361,8 @@ public class XMLEditor {
         }
 
         private void loadTemplate(String[] name) {
-            try {
-                XMLMain.commandLoop(XMLEditor.this, new FileInputStream("templates/" + name[0] + ".txt"));
+            try (FileInputStream fileIs = new FileInputStream("templates/" + name[0] + ".txt")) {
+                XMLMain.commandLoop(XMLEditor.this, fileIs);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -337,7 +371,6 @@ public class XMLEditor {
         private void removeCurrent() {
             currentNode.getParent().removeChildNode(currentNode);
             currentNode = currentNode.getParent();
-            Log.currentNodeMsg(currentNode.getTag());
         }
 
         private void deleteTemplate(String[] name) {
@@ -353,7 +386,7 @@ public class XMLEditor {
                 mainRoot = new XMLContainer(documentName);
                 currentNode = currentRoot = mainRoot;
                 Log.clearLog();
-                Log.documentClearedMsg();
+                Log.emptyDocumentMsg();
             }
         }
 

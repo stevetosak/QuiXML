@@ -1,31 +1,33 @@
-add;adds an Xml node to as a child of the currently selected node.The type of node depends on the number of parameters given.The first parameter is the name of the node to be created.The second parameter is optional and adds text value to the node.If this function is called with only one parameter it is equivalent to the container command.If it is called with two parameters it is equivalent to the leaf command.[format: add (tagName) ?(textValue)?]
-atrib;adds an attribute to the currently selected XML node. [format: atrib (name) (val)]
-leaf;adds an XML node that has a value content.[format: leaf (tagName) (value)]
-container;adds an XML container node as a child of the currently selected node. [format: container (tagName)]
+add;adds an Xml node to as a child of the currently selected node and marks it as the currently selected node.The type of node that is added depends on the number of parameters given.The first parameter is the name of the node to be created.The second parameter is optional and adds text value to the node.If this function is called with only one parameter it is equivalent to the container command.If it is called with two parameters it is equivalent to the leaf command. Format: [add (tagName) ?(textValue)?]
+atrib;adds an attribute to the currently selected XML node. Format: [atrib (name) (val)]
+leaf;adds an XML node that has a value content and marks it as the currently selected node.Format: [leaf (tagName) (value)]
+container;adds an XML container node as a child of the currently selected node and marks it as the currently selected node. Format: [container (tagName)]
 print-r;displays the currently selected root and all of the nodes nested inside of it.
 print-c;displays only the current XML node you have selected.
 print-a;displays the whole xml document.
-root;adds a new root node in the editor. (format: root tagName)
-clear;clears the document.
-nav;changes the current node to another node in the same root. (format: nav (tagName))
-swap;swaps 2 nodes passed by their tag name (format: swap (tag1) (tag2)
-down;steps inside the currently selected container node. (if possible)
-up;steps outside the currently selected container node. (if possible)
+root;adds a new root node in the editor without selecting it as the current node. Format: [root (tagName)]
+clear-d;deletes every node in the document resulting in an empty XML document.
+nav;searches and navigates to the first node with the specified tag name, if it exists in the document.The first parameter is the target tagName, and the second parameter is optional and specifies from which node the search should begin, if the specified node exists in the document.This is useful for when there are multiple nodes with the same tag. Format: [nav (tagName) ?(startNodeTagName)?]
+swap;swaps 2 nodes passed by their tag name Format: [swap (tag1) (tag2)]
+down;steps inside the currently selected container node, if possible.
+up;steps outside the currently selected container node, if possible.
 next;selects the next node that is in the same level of the currently selected node.
 back;selects the previous node that is in the same level of the currently selected node.
 top-c;selects the current root node as the current node.
 top-d;selects the first root node in the document as the current node.
 remove-c;removes the currently selected node from the XML editor.
-undo; asd
-redo;asd
+undo;reverts to the previous state the document was in.
+redo;this command can be called after calling undo to revert the document to the state it was in before calling the undo command.
 write;writes the content that is currently in the document to a file.
 cmd-all;displays all of the commands that this program offers
 show-t;displays currently available templates;
-load-t;loads a template xml code (format: template (name)
-save-t;saves the commands up until now as a template with name (name). (format: save-template (name))
-del-t;deletes the template with the name (name). (format: delete-template (name))
-del-a;removes an attribute from the currently selected node.If no arguments are passed, the last attribute will be removed.If one argument is passed, the attribute with the name passed by the argument wil be removed,if it exists.[format: del-a ?(attribName)?]
+load-t;loads an XML document template from the templates folder Format: [load-t (name)]
+save-t;saves the commands up until now as a template with a custom name.If there are no templates, the templates folder is created first, then the subsequent template is added to the folder. Format: [save-t (name)]
+del-t;deletes a template, if it exists, with the name passed as a parameter. Format: [delete-t (name)]
+del-a;removes an attribute from the currently selected node.If no arguments are passed, the last attribute will be removed.If one argument is passed, the attribute with the name passed by the argument wil be removed,if it exists.Format: [del-a ?(attribName)?]
 clear-log;clears the commands written in the log up until now.
 ptog;toggles printing on/off after every command.
-help;displays info about a command
+help;displays info about a command. Format: [help (commandName)]
+clear-t;deletes all of the templates that have been saved in the templates folder and deletes the templates folder.
+
 

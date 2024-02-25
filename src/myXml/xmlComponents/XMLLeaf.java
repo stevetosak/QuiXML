@@ -28,6 +28,16 @@ public class XMLLeaf extends XMLComponent {
     }
 
     @Override
+    public XMLComponent deepCopy() {
+        XMLLeaf copy = new XMLLeaf(tag, textValue);
+        copy.addAllAttributes(attributes);
+        for (XMLComponent child : children) {
+            copy.addChild(child.deepCopy());
+        }
+        return copy;
+    }
+
+    @Override
     public String toString() {
         return generateXml(0);
     }

@@ -3,10 +3,7 @@ package myXml.main;
 import myXml.editor.XMLEditor;
 import myXml.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class XMLMain {
@@ -20,7 +17,7 @@ public class XMLMain {
             if (command.equals("END")) break;
             String[] params = Arrays.copyOfRange(parts, 1, parts.length);
             try {
-                editor.run(command, params);
+                editor.run(command, params, !(is instanceof FileInputStream)); //Ako e od file - false.
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }

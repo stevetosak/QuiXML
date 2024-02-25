@@ -16,6 +16,6 @@ public class RawCommand implements CommandFormat {
 
     @Override
     public String commandFormat() {
-        return name + " " + String.join(" ", params);
+        return name + (params.length == 0 ? "" : " " + String.join(" ", params));
     }
 }

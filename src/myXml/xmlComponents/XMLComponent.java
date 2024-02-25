@@ -1,9 +1,6 @@
 package myXml.xmlComponents;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class XMLComponent {
@@ -17,6 +14,8 @@ public abstract class XMLComponent {
     }
 
     abstract String generateXml(int depth);
+
+    public abstract XMLComponent deepCopy();
 
     public void addAttribute(String name, String val) {
         attributes.add(new Attribute(name, val));
@@ -37,6 +36,22 @@ public abstract class XMLComponent {
         List<XMLComponent> siblings = parent.getChildren();
         siblings.remove(this);
         return siblings;
+    }
+
+    public String getTagNameFormatted() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<").append(tag);
+        attributes.forEach(atb -> sb.append(atb.toString()));
+        sb.append(">");
+        return sb.toString();
+    }
+
+    public void addAllAttributes(Collection<Attribute> attributes) {
+        this.attributes.addAll(attributes);
+    }
+
+    public Set<Attribute> getAttributes() {
+        return attributes;
     }
 
     public XMLComponent getNext() {
@@ -91,14 +106,14 @@ public abstract class XMLComponent {
         return attributes.removeIf(atb -> atb.getName().equals(attribName));
     }
 
-    public boolean removeLastAttribute() {
+    public void removeLastAttribute() {
         if (!attributes.isEmpty()) {
-            return attributes.remove(attributes
+            attributes.remove(attributes
                     .stream()
                     .collect(Collectors.toList())
                     .getLast()
             );
-        } else return false;
+        }
 
     }
 
