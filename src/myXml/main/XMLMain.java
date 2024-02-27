@@ -2,6 +2,7 @@ package myXml.main;
 
 import myXml.editor.XMLEditor;
 import myXml.util.Log;
+import myXml.util.Messenger;
 
 import java.io.*;
 import java.util.*;
@@ -17,7 +18,7 @@ public class XMLMain {
             if (command.equals("END")) break;
             String[] params = Arrays.copyOfRange(parts, 1, parts.length);
             try {
-                editor.run(command, params, !(is instanceof FileInputStream)); //Ako e od file - false.
+                editor.processCommands(command, params, !(is instanceof FileInputStream)); //Ako e od file - false.
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
@@ -27,7 +28,7 @@ public class XMLMain {
     }
 
     public static void main(String[] args) throws IOException {
-        Log.emptyDocumentMsg();
+        Messenger.emptyDocumentMsg();
         commandLoop(new XMLEditor(), System.in);
     }
 }

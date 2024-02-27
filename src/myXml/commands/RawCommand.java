@@ -1,5 +1,9 @@
-package myXml.util;
+package myXml.commands;
 
+/**
+ * This is a Command Format that displays a command in the form that it was inputted.
+ * Example: "add node" will be saved as -> "add node", exactly the same as it was typed in.
+ */
 public class RawCommand implements CommandFormat {
     private final String name;
     private final String[] params;

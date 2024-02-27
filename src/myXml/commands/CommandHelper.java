@@ -1,4 +1,4 @@
-package myXml.util;
+package myXml.commands;
 
 import java.io.*;
 import java.util.*;

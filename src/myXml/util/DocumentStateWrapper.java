@@ -1,5 +1,6 @@
 package myXml.util;
 
+import myXml.commands.RawCommand;
 import myXml.xmlComponents.XMLComponent;
 
 import java.util.LinkedList;

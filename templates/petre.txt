@@ -1,0 +1,4 @@
+add petre
+atrib voResen true
+add kuce nemat kuce be coek
+top-d

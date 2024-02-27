@@ -1,18 +1,23 @@
 package myXml.util;
 
+import myXml.commands.RawCommand;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.nio.file.*;
-import java.util.List;
 import java.util.Stack;
 import java.util.stream.Stream;
 
 // druga klasa za cuvanje dosega komandi ova klasa samo za poraki
+
+/**
+ * The log class is responsible for keeping track (logging)
+ * all the input commands and for creation and storage of templates.
+ */
 
 public class Log {
     private static final Stack<LinkedList<RawCommand>> previousLogState = new Stack<>();
@@ -31,38 +36,6 @@ public class Log {
         return commandLog;
     }
 
-    public static void currentNodeMsg(String currentNodeTag, String currentRootTag) {
-        System.out.println("Current node is: " + currentNodeTag + " in " + currentRootTag);
-    }
-
-    public static void leafAddedMsg(String name, String value) {
-        System.out.println("Added leaf node: " + name + " with the content inside: " + value);
-    }
-
-    public static void attributeAddedMsg(String name, String value) {
-        System.out.println("Added attribute: " + name + " with value of: " + value);
-    }
-
-    public static void containerAddedMsg(String tagName) {
-        System.out.println("Added container: " + tagName);
-    }
-
-    public static void rootAdded(String tagName) {
-        System.out.println("Added root: " + tagName);
-    }
-
-    public static void invalidCommandMsg() {
-        System.out.println("Invalid command");
-    }
-
-
-    public static void emptyDocumentMsg() {
-        System.out.println("Document is empty");
-        System.out.println("\t- Type \"add (containerName) ?(textContent)? to add an XML node to the document.\"");
-        System.out.println("\t- Type \"load-t (templateName)\" to load a document from a template.");
-        System.out.println("\t- Type \"cmd-all\" to see the list of commands.");
-        System.out.println("To toggle printing on/off type: \"ptog\"");
-    }
 
     public static void showLoggedCommands() {
         StringBuilder sb = new StringBuilder();
@@ -114,7 +87,8 @@ public class Log {
     private static boolean isLoggable(String commandName) {
         String[] unLoggableCommands = {
                 "load-t", "ptog", "print-r", "print-c", "print-a",
-                "write", "cmd-all", "show-t", "del-t", "help", "clear"
+                "write", "cmd-all", "show-t", "del-t", "help", "clear",
+                "save-t"
         };
 
         for (String cmd : unLoggableCommands) {
@@ -164,7 +138,7 @@ public class Log {
         System.out.println("Command log successfully cleared");
     }
 
-    public static void revertLog() { //TODO
+    public static void revertLog() {
         if (previousLogState.empty()) {
             System.out.println("No previous logs");
             return;
@@ -172,6 +146,5 @@ public class Log {
         commandLog = previousLogState.pop();
     }
 
-    // save template (ime)
 
 }
