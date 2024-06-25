@@ -47,7 +47,7 @@ public class XMLEditor {
     }
 
     private void loadCommands() {
-        commandMap.put("atrib", this::addAttribute);
+        commandMap.put("attrib", this::addAttribute);
         commandMap.put("leaf", this::addLeaf);
         commandMap.put("container", this::addContainer);
         commandMap.put("root", this::addRoot);
