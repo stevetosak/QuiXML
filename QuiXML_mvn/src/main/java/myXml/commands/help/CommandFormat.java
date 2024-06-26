@@ -1,4 +1,4 @@
-package myXml.commands;
+package myXml.commands.help;
 
 /**
  * This interface provides a common link to the two types of commands: {@link RawCommand} and {@link InfoCommand}.

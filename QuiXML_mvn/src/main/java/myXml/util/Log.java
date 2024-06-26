@@ -1,6 +1,6 @@
 package myXml.util;
 
-import myXml.commands.RawCommand;
+import myXml.commands.help.RawCommand;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -50,7 +50,7 @@ public class Log {
     }
 
     private static String createFileTemplate(String name) {
-        String dirPath = "templates";
+        String dirPath = "src/main/resources/templates";
         String fileName = name + ".txt";
 
         Path directoryPath = Paths.get(dirPath);
@@ -64,6 +64,8 @@ public class Log {
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
                 System.out.println("Template " + name + " was created");
+            } else {
+                System.out.println("Template with name: \"" + name + "\"" + " already exists!");
             }
         } catch (Exception ignored) {
         }

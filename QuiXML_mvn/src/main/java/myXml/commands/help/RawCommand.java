@@ -1,4 +1,4 @@
-package myXml.commands;
+package myXml.commands.help;
 
 /**
  * This is a Command Format that displays a command in the form that it was inputted.

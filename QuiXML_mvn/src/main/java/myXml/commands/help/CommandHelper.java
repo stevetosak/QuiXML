@@ -1,4 +1,4 @@
-package myXml.commands;
+package myXml.commands.help;
 
 import java.io.*;
 import java.util.*;
@@ -18,8 +18,13 @@ public class CommandHelper {
         return new ArrayList<>(commandList);
     }
 
-    public static void getCommandHelp(String[] name) {
-        System.out.println(commandToInfoMap.get(name[0]).commandFormat());
+    public static void getCommandHelp(String[] name) throws InvalidCommandException {
+        if(commandToInfoMap.containsKey(name[0])){
+            System.out.println(commandToInfoMap.get(name[0]).commandFormat());
+        } else {
+            throw new InvalidCommandException();
+        }
+
     }
 
     public static void displayAllCommands() {

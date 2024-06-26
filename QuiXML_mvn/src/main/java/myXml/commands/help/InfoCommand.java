@@ -1,4 +1,4 @@
-package myXml.commands;
+package myXml.commands.help;
 
 /**
  * This is a command format that is used when using the
