@@ -1,0 +1,16 @@
+myXml/util/Log.class
+myXml/commands/InfoCommand.class
+myXml/util/Messenger.class
+myXml/main/XMLMain.class
+myXml/util/DeepCopy.class
+myXml/commands/CommandInitializer.class
+myXml/xmlComponents/XMLContainer.class
+myXml/util/DocumentStateWrapper.class
+myXml/xmlComponents/XMLComponent.class
+myXml/xmlComponents/Attribute.class
+myXml/commands/CommandFormat.class
+myXml/commands/RawCommand.class
+myXml/commands/InvalidCommandException.class
+myXml/xmlComponents/XMLLeaf.class
+myXml/editor/XMLEditor.class
+myXml/commands/CommandHelper.class

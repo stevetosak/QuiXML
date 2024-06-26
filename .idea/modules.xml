@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/XMLEditor_v1.iml" filepath="$PROJECT_DIR$/XMLEditor_v1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QuiXML_mvn.iml" filepath="$PROJECT_DIR$/QuiXML_mvn.iml" />
     </modules>
   </component>
 </project>
