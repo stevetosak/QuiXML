@@ -41,7 +41,7 @@ public class XMLEditor {
                 CommandManager manager = cmdClass.getDeclaredConstructor().newInstance();
                 Method method = CommandManager.processAnnotations(manager,commandName);
                 if(method != null){
-                    Log.logCommand(commandName, params); // zaradi clear
+                    Log.logCommand(commandName, params);
                     if (logStateAndPrint) state.logDocumentState(document,commandName, "undo", "undo");
                     XMLEditor editor = (XMLEditor) method.invoke(manager,document,params);
                     if(editor != null){

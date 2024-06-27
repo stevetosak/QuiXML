@@ -1,0 +1,11 @@
+add bookstore
+add books
+add book This is a great book hello there
+top
+up
+add koska
+add toska
+top
+add moskva
+svtmp test1
+td
