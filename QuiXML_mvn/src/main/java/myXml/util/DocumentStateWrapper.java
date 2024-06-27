@@ -1,6 +1,6 @@
 package myXml.util;
 
-import myXml.commands.help.RawCommand;
+import myXml.commands.Command;
 import myXml.components.XMLComponent;
 import myXml.components.XMLContainer;
 
@@ -11,14 +11,14 @@ public final class DocumentStateWrapper {
     private XMLComponent mainRoot;
     private XMLComponent currentRoot;
     private XMLComponent currentNode;
-    private final LinkedList<RawCommand> commandLog;
+    private final LinkedList<Command> commandLog;
 
     public DocumentStateWrapper(String documentName) {
         this.documentName = documentName;
         commandLog = new LinkedList<>();
     }
 
-    public DocumentStateWrapper(XMLComponent mainRoot, XMLComponent currentRoot, XMLComponent currentNode, LinkedList<RawCommand> commandLog) {
+    public DocumentStateWrapper(XMLComponent mainRoot, XMLComponent currentRoot, XMLComponent currentNode, LinkedList<Command> commandLog) {
         this.mainRoot = mainRoot;
         this.currentRoot = currentRoot;
         this.currentNode = currentNode;
@@ -53,7 +53,7 @@ public final class DocumentStateWrapper {
         return currentNode.getTag();
     }
 
-    public LinkedList<RawCommand> commandLog() {
+    public LinkedList<Command> commandLog() {
         return commandLog;
     }
 

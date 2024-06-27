@@ -1,33 +1,30 @@
 add;Format: [add (tagName) ?(textValue)?]Adds an Xml node to as a child of the currently selected node and marks it as the currently selected node.The type of node that is added depends on the number of parameters given.The first parameter is the name of the node to be created.The second parameter is optional and adds text value to the node.If this function is called with only one parameter it is equivalent to the container command.If it is called with two parameters it is equivalent to the leaf command.
-atb;Format: [attrib (name) (val)]Adds an attribute to the currently selected XML node.
+atb;attribute;Format: [attrib (name) (val)]Adds an attribute to the currently selected XML node.
 leaf;Format: [leaf (tagName) (value)]Adds an XML node that has a value content and marks it as the currently selected node.
-cont;Format: [container (tagName)]Adds an XML container node as a child of the currently selected node and marks it as the currently selected node.
-pr;Displays the currently selected root and all of the nodes nested inside of it.
-pc;Displays only the current XML node you have selected.
-pa;Displays the whole xml document.
-root;Format: [root (tagName)]Adds a new root node in the editor without selecting it as the current node.
+cont;container;Format: [container (tagName)]Adds an XML container node as a child of the currently selected node and marks it as the currently selected node.
+pr;print current root;Displays the currently selected root and all of the nodes nested inside of it.
+pc;print current node;Displays only the current XML node you have selected.
+pa;print all;Displays the whole xml document.
+root;add root;Format: [root (tagName)]Adds a new root node in the editor without selecting it as the current node.
 clear;Deletes every node in the document resulting in an empty XML document.
-nav;Format: [nav (tagName) ?(startNodeTagName)?]Searches and navigates to the first node with the specified tag name, if it exists in the document.The first parameter is the target tagName, and the second parameter is optional and specifies from which node the search should begin, if the specified node exists in the document.This is useful for when there are multiple nodes with the same tag.
+nav;navigate;select;Format: [nav (tagName) ?(startNodeTagName)?]Searches and navigates to the first node with the specified tag name, if it exists in the document.The first parameter is the target tagName, and the second parameter is optional and specifies from which node the search should begin, if the specified node exists in the document.This is useful for when there are multiple nodes with the same tag.
 swap;Format: [swap (tag1) (tag2)]Swaps 2 nodes passed by their tag name.
-downSteps inside the currently selected container node, if possible.
-up;Steps outside the currently selected container node, if possible.
-next;Selects the next node that is in the same level of the currently selected node.
-back;Selects the previous node that is in the same level of the currently selected node.
-tc;Selects the current root node as the current node.
-td;Selects the first root node in the document as the current node.
-rmc;Removes the currently selected node from the XML editor.
+md;down;Steps inside the currently selected container node, if possible.
+mu;up;Steps outside the currently selected container node, if possible.
+mn;next;Selects the next node that is in the same level of the currently selected node.
+mb;back;Selects the previous node that is in the same level of the currently selected node.
+cr;current root;Selects the current root node as the current node.
+top;Selects the first root node in the document as the current node.
+rmc;remove current root;Removes the currently selected node from the XML editor.
 undo;Reverts to the previous state the document was in.
 redo;This command can be called after calling undo to revert the document to the state it was in before calling the undo command.
-write;Writes the content that is currently in the document to a file.
-cmd;Displays all of the commands that this program offers
-st;Displays currently available templates;
-lt;Format: [load-t (name)]Loads an XML document template from the templates folder.
-st;Format: [save-t (name)]Saves the commands up until now as a template with a custom name.If there are no templates, the templates folder is created first, then the subsequent template is added to the folder.
-rmt;Format: [delete-t (name)]Deletes a template, if it exists, with the name passed as a parameter.
-rma;Format: [del-a ?(attribName)?]Removes an attribute from the currently selected node.If no arguments are passed, the last attribute will be removed.If one argument is passed, the attribute with the name (attribName) wil be removed,if it exists.
-clog;Clears the commands written in the log up until now.
-pt;Toggles printing on/off after every command.
+save;Writes the content that is currently in the document to a file.
+shtmp;show templates;Displays currently available templates;
+ldtmp;load template;Format: [lt (name)]Loads an XML document template from the templates folder.
+svtmp;save template;Format: [save-t (name)]Saves the commands up until now as a template with a custom name.If there are no templates, the templates folder is created first, then the subsequent template is added to the folder.
+rmtmp;remove template;Format: [delete-t (name)]Deletes a template, if it exists, with the name passed as a parameter.
+rma;remove attribute;Format: [del-a ?(attribName)?]Removes an attribute from the currently selected node.If no arguments are passed, the last attribute will be removed.If one argument is passed, the attribute with the name (attribName) wil be removed,if it exists.
+clog;clear log;Clears the commands written in the log up until now.
+pt;print toggle;Toggles printing on/off after every command.
 help;Format: [help (commandName)]Displays info about a command.
-clear-t;Deletes all of the templates that have been saved in the templates folder and deletes the templates folder.
-
-
+clear-t;Deletes all of the templates that have been saved in the templates folder and deletes the templates folder.//todo

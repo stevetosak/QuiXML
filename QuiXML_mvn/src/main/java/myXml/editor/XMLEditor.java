@@ -2,6 +2,7 @@ package myXml.editor;
 
 import myXml.commands.help.CommandHelper;
 import myXml.commands.help.InvalidCommandException;
+import myXml.commands.manager.CommandManager;
 import myXml.main.XMLMain;
 import myXml.util.DocumentStateWrapper;
 import myXml.util.Log;
@@ -25,11 +26,12 @@ public class XMLEditor {
     private final Map<String, Consumer<String[]>> commandMap = new HashMap<>();
     private final DocumentStateWrapper document = new DocumentStateWrapper(documentName);
     private boolean toPrint = true;
+    CommandManager manager;
     public XMLEditor() throws IOException {
         undoStack = new ArrayDeque<>(MAX_STACK_CAPACITY);
         redoStack = new ArrayDeque<>(MAX_STACK_CAPACITY);
         document.init();
-        CommandHelper.init("src/main/resources/command_list.ssv");
+        //CommandHelper.init();
         loadCommands();
     }
 
@@ -74,11 +76,11 @@ public class XMLEditor {
         commandMap.put("tpc", (params) -> top());
         commandMap.put("clear", (params) -> clear());
         commandMap.put("swap", this::swap);
-        commandMap.put("lt", this::loadTemplate);
+        commandMap.put("ldtmp", this::loadTemplate);
         commandMap.put("write", (params) -> writeToFile());
-        commandMap.put("save", this::createTemplate);
-        commandMap.put("rmt", this::deleteTemplate);
-        commandMap.put("st", (params) -> Log.showTemplates());
+        commandMap.put("svtmp", this::createTemplate);
+        commandMap.put("rmtmp", this::deleteTemplate);
+        commandMap.put("shtmp", (params) -> Log.showTemplates());
         commandMap.put("pt", (params) -> togglePrint());
         commandMap.put("tpd", (params) -> resetToTop());
         commandMap.put("cl", (params) -> Log.clearLog());
