@@ -1,6 +1,6 @@
 package myXml.util;
 
-import myXml.commands.Command;
+import myXml.commands.help.Command;
 import myXml.components.XMLComponent;
 import myXml.components.XMLContainer;
 

@@ -1,40 +1,30 @@
 package myXml.commands.help;
 
-import myXml.commands.Command;
+import myXml.commands.manager.ClassIdentifier;
+
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandHelper {
-    //private static final Map<String, InfoCommand> commandToInfoMap = new HashMap<>();
-    private static final String path = "src/main/resources/command_list.ssv";
+    private static final String COMMAND_LIST_PATH = "src/main/resources/command_list.ssv";
     private final static List<Command> commandList;
 
     static {
         try {
-            commandList = initCommands(path);
+            commandList = initCommands();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-
-//    public static void init() throws IOException {
-//        commandList = initCommands(path);
-//
-//    }
-
-//    public static List<InfoCommand> getCommandList() {
-//        return commandToInfoMap.values().stream().collect(Collectors.toUnmodifiableList());
-//    }
-
     public static void getCommandHelp(String[] name) throws InvalidCommandException {
-       Command cmd = containsCommand(name[0]);
+       Command cmd = getCommand(name[0]);
        if(cmd != null) System.out.println(cmd.infoCommandFormat());
 
     }
 
-    public static Command containsCommand(String name){
+    public static Command getCommand(String name){
         for(Command cmd : commandList){
             if(cmd.contains(name)){
                 return cmd;
@@ -64,19 +54,25 @@ public class CommandHelper {
             if(parts.length < 2){
                 System.out.println("Zgrese negde gojdo proveri go fajlot");
             }
-
-            String name = parts[0];
-            String [] aliases = Arrays.copyOfRange(parts,1,parts.length -1);
+            String name = parts[1];
+            String classID = parts[0].substring(1);
+            String [] aliases = new String[0];
+            if(parts.length -1 > 1){
+               aliases = Arrays.copyOfRange(parts,2,parts.length -1);
+            }
+            ClassIdentifier cid = ClassIdentifier.NONE;
+            for(ClassIdentifier c : ClassIdentifier.values()){
+                if(classID.equals(c.name())) cid = c;
+            }
             String info = parts[parts.length-1];
-
-            if (parts.length >= 2) commands.add(new Command(name,aliases,info));
+            commands.add(new Command(name,aliases,info,cid));
             line = br.readLine();
         }
         return commands.stream().sorted(Comparator.comparing(Command::getShortName)).collect(Collectors.toList());
     }
 
-    private static List<Command> initCommands(String path) throws IOException {
-        try (InputStream is = new FileInputStream(path)) {
+    private static List<Command> initCommands() throws IOException {
+        try (InputStream is = new FileInputStream(CommandHelper.COMMAND_LIST_PATH)) {
             return initExec(is);
         }
     }

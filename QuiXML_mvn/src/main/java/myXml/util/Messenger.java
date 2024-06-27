@@ -32,7 +32,7 @@ public class Messenger {
     public static void emptyDocumentMsg() {
         System.out.println("Document is empty");
         System.out.println("\t- Type \"add (tagName) ?(textContent)? to add an XML node to the document.\"");
-        System.out.println("\t- Type \"lt (templateName)\" to load a document from a template.");
+        System.out.println("\t- Type \"ldtmp (templateName)\" to load a document from a template.");
         System.out.println("\t- Type \"help\" to see the list of commands.");
         System.out.println("To toggle printing on/off type: \"pt\"");
     }

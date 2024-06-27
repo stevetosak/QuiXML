@@ -1,4 +1,6 @@
-package myXml.commands;
+package myXml.commands.help;
+
+import myXml.commands.manager.ClassIdentifier;
 
 public class Command {
 
@@ -6,6 +8,7 @@ public class Command {
     private String info;
     private String[] aliases;
     private String[] params;
+    public ClassIdentifier classId = ClassIdentifier.NONE;
 
     public Command(String shortName, String[] aliases, String info) {
         this.shortName = shortName;
@@ -18,9 +21,13 @@ public class Command {
         this.params = params;
     }
 
-    public void getHandler(){
-
+    public Command(String name, String[] aliases, String info, ClassIdentifier classID) {
+        this.shortName = name;
+        this.info = info;
+        this.aliases = aliases;
+        this.classId = classID;
     }
+
 
     public boolean contains(String name){
         if(shortName.equals(name)) return true;

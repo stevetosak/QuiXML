@@ -2,14 +2,14 @@ package myXml.main;
 
 import myXml.editor.XMLEditor;
 import myXml.util.Messenger;
-import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Optional;
 
-public class XMLMain {
+public class Main {
 
-    public static void commandLoop(XMLEditor editor, InputStream is) throws IOException {
+    public static XMLEditor commandLoop (XMLEditor editor, InputStream is) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line = br.readLine();
         while (line != null) {
@@ -25,11 +25,12 @@ public class XMLMain {
 
             line = br.readLine();
         }
+        return editor;
     }
 
     public static void main(String[] args) throws IOException {
         Messenger.emptyDocumentMsg();
-        commandLoop(new XMLEditor(), System.in);
+        commandLoop(new XMLEditor(),System.in);
 
     }
 }

@@ -49,7 +49,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>myXml.main.XMLMain</mainClass>
+                            <mainClass>myXml.main.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
