@@ -1,6 +1,6 @@
 package myXml.util;
 
-import myXml.commands.RawCommand;
+import myXml.commands.Command;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,19 +22,19 @@ import java.util.stream.Stream;
  */
 
 public class Log {
-    private static final Stack<LinkedList<RawCommand>> previousLogState = new Stack<>();
-    private static LinkedList<RawCommand> commandLog = new LinkedList<>();
+    private static final Stack<LinkedList<Command>> previousLogState = new Stack<>();
+    private static LinkedList<Command> commandLog = new LinkedList<>();
 
     public static void logCommand(String commandName, String[] params) {
         if (!commandName.equals("show-logs"))
-            commandLog.add(new RawCommand(commandName, params));
+            commandLog.add(new Command(commandName, params));
     }
 
-    public static void updateCommandLog(LinkedList<RawCommand> commands) {
+    public static void updateCommandLog(LinkedList<Command> commands) {
         commandLog = commands;
     }
 
-    public static LinkedList<RawCommand> getCommandLog() {
+    public static LinkedList<Command> getCommandLog() {
         return commandLog;
     }
 
@@ -42,7 +42,7 @@ public class Log {
     public static void showLoggedCommands() {
         StringBuilder sb = new StringBuilder();
         sb.append("Logged commands: [");
-        commandLog.forEach(command -> sb.append("\"").append(command.commandFormat()).append("\","));
+        commandLog.forEach(command -> sb.append("\"").append(command.rawCommandFormat()).append("\","));
         sb.deleteCharAt(sb.lastIndexOf(","));
         sb.append("]");
         System.out.println(sb);
@@ -50,7 +50,7 @@ public class Log {
     }
 
     private static String createFileTemplate(String name) {
-        String dirPath = "templates";
+        String dirPath = "src/main/resources/templates";
         String fileName = name + ".txt";
 
         Path directoryPath = Paths.get(dirPath);
@@ -64,6 +64,8 @@ public class Log {
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
                 System.out.println("Template " + name + " was created");
+            } else {
+                System.out.println("Template with name: \"" + name + "\"" + " already exists!");
             }
         } catch (Exception ignored) {
         }
@@ -83,7 +85,7 @@ public class Log {
     }
 
     public static String getLastCommandName() {
-        return commandLog.get(commandLog.size() - 2).getName();
+        return commandLog.get(commandLog.size() - 2).getShortName();
     }
 
     private static boolean isLoggable(String commandName) {
@@ -105,9 +107,9 @@ public class Log {
         BufferedWriter bw = new BufferedWriter(new FileWriter(createFileTemplate(templateName)));
         StringBuilder sb = new StringBuilder();
         commandLog.forEach(command -> {
-            String commandName = command.getName();
+            String commandName = command.getShortName();
             if (isLoggable(commandName)) {
-                sb.append(command.commandFormat()).append('\n');
+                sb.append(command.rawCommandFormat()).append('\n');
             }
         });
         sb.append("td").append("\n");
