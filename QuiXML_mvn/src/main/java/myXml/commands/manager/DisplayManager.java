@@ -3,7 +3,7 @@ package myXml.commands.manager;
 import myXml.annotations.CommandHandler;
 import myXml.commands.help.CommandHelper;
 import myXml.commands.help.InvalidCommandException;
-import myXml.components.XMLComponent;
+import myXml.components.XmlNode;
 import myXml.util.DocumentStateWrapper;
 import myXml.util.Messenger;
 
@@ -12,7 +12,7 @@ public class DisplayManager implements CommandManager {
     public static boolean toPrint = true;
     public String serializeDocument(DocumentStateWrapper document){
         final StringBuilder sb = new StringBuilder();
-        for (XMLComponent child : document.mainRoot().getChildren()){
+        for (XmlNode child : document.mainRoot().getChildren()){
             sb.append(child.generateXml(0,document.currentNode()));
         }
         return sb.toString();

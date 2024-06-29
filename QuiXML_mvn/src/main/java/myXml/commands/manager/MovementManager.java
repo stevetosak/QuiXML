@@ -1,7 +1,7 @@
 package myXml.commands.manager;
 
 import myXml.annotations.CommandHandler;
-import myXml.components.XMLComponent;
+import myXml.components.XmlNode;
 import myXml.util.DocumentStateWrapper;
 
 import java.security.InvalidParameterException;
@@ -56,8 +56,8 @@ public class MovementManager implements CommandManager {
     @CommandHandler(names = "swap")
     public void swap(DocumentStateWrapper document,String[] tags) {
         if (tags.length < 2) throw new InvalidParameterException("Invalid number of parameters");
-        XMLComponent node1 = utilityManager.findByTag(document.mainRoot(), tags[0]);
-        XMLComponent node2 = utilityManager.findByTag(document.mainRoot(), tags[1]);
+        XmlNode node1 = utilityManager.findByTag(document.mainRoot(), tags[0]);
+        XmlNode node2 = utilityManager.findByTag(document.mainRoot(), tags[1]);
 
         if (node1 == null || node2 == null) return;
 

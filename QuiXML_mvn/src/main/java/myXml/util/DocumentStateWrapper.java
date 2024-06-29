@@ -1,16 +1,16 @@
 package myXml.util;
 
 import myXml.commands.help.Command;
-import myXml.components.XMLComponent;
-import myXml.components.XMLContainer;
+import myXml.components.XmlNode;
+import myXml.components.ElementNode;
 
 import java.util.LinkedList;
 
 public final class DocumentStateWrapper {
     private String documentName;
-    private XMLComponent mainRoot;
-    private XMLComponent currentRoot;
-    private XMLComponent currentNode;
+    private XmlNode mainRoot;
+    private XmlNode currentRoot;
+    private XmlNode currentNode;
     private final LinkedList<Command> commandLog;
 
     public DocumentStateWrapper(String documentName) {
@@ -18,26 +18,26 @@ public final class DocumentStateWrapper {
         commandLog = new LinkedList<>();
     }
 
-    public DocumentStateWrapper(XMLComponent mainRoot, XMLComponent currentRoot, XMLComponent currentNode, LinkedList<Command> commandLog) {
+    public DocumentStateWrapper(XmlNode mainRoot, XmlNode currentRoot, XmlNode currentNode, LinkedList<Command> commandLog) {
         this.mainRoot = mainRoot;
         this.currentRoot = currentRoot;
         this.currentNode = currentNode;
         this.commandLog = commandLog;
     }
 
-    public XMLComponent mainRoot() {
+    public XmlNode mainRoot() {
         return mainRoot;
     }
 
-    public XMLComponent currentRoot() {
+    public XmlNode currentRoot() {
         return currentRoot;
     }
 
-    public XMLComponent currentNode() {
+    public XmlNode currentNode() {
         return currentNode;
     }
 
-    public void setNode(String type,XMLComponent node){
+    public void setNode(String type, XmlNode node){
         switch (type) {
             case "mr" -> mainRoot = node;
             case "cr" -> currentRoot = node;
@@ -59,7 +59,7 @@ public final class DocumentStateWrapper {
 
 
     public void init() {
-        this.mainRoot = new XMLContainer(documentName);
+        this.mainRoot = new ElementNode(documentName);
         currentNode = currentRoot = mainRoot;
     }
 }

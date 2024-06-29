@@ -1,23 +1,19 @@
 package myXml.commands.manager;
 
-import myXml.annotations.CommandHandler;
-import myXml.commands.help.CommandHelper;
-import myXml.commands.help.InvalidCommandException;
-import myXml.components.XMLComponent;
+import myXml.components.XmlNode;
 import myXml.util.DocumentStateWrapper;
 
-import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class UtilityManager {
 
-    public XMLComponent findByTag(XMLComponent node, String targetTag) {
+    public XmlNode findByTag(XmlNode node, String targetTag) {
         if (node.getTag().equals(targetTag)) return node;
-        Queue<XMLComponent> queue = new LinkedList<>();
+        Queue<XmlNode> queue = new LinkedList<>();
         queue.add(node);
         while (!queue.isEmpty()) {
-            XMLComponent curr = queue.poll();
+            XmlNode curr = queue.poll();
             if (curr.getTag().equals(targetTag)) return curr;
             queue.addAll(curr.getChildren());
         }
@@ -28,7 +24,7 @@ public class UtilityManager {
         return document.mainRoot().getChildren().isEmpty();
     }
 
-    public void findRoot(DocumentStateWrapper document,XMLComponent node) {
+    public void findRoot(DocumentStateWrapper document, XmlNode node) {
         if (node.getParent().equals(document.mainRoot()) || node.getParent() == null) {
             document.setNode("cr",node);
             return;
@@ -39,7 +35,7 @@ public class UtilityManager {
     //ova vo movement
 
     public void findFromMainRoot(DocumentStateWrapper document ,String tagName) { //Niz cel dokument bfs
-        XMLComponent target = findByTag(document.mainRoot(), tagName);
+        XmlNode target = findByTag(document.mainRoot(), tagName);
         if (target != null) {
             document.setNode("cn",target);
             findRoot(document,document.currentNode());
@@ -49,9 +45,9 @@ public class UtilityManager {
     }
 
     public void findFromRoot(DocumentStateWrapper document,String targetNodeTagName, String rootTagName) { // od daden root node bfs
-        XMLComponent targetRoot = findByTag(document.mainRoot(), rootTagName);
+        XmlNode targetRoot = findByTag(document.mainRoot(), rootTagName);
         if (targetRoot != null) {
-            XMLComponent targetNode = findByTag(targetRoot, targetNodeTagName);
+            XmlNode targetNode = findByTag(targetRoot, targetNodeTagName);
             if (targetNode != null) {
                 document.setNode("cn",targetNode);
                 document.setNode("cr",targetRoot);

@@ -1,9 +1,9 @@
 package myXml.commands.manager;
 
 import myXml.annotations.CommandHandler;
-import myXml.components.XMLComponent;
-import myXml.components.XMLContainer;
-import myXml.components.XMLLeaf;
+import myXml.components.XmlNode;
+import myXml.components.ElementNode;
+import myXml.components.TextNode;
 import myXml.editor.XMLEditor;
 import myXml.util.DocumentStateWrapper;
 import myXml.util.Log;
@@ -11,8 +11,6 @@ import myXml.util.Messenger;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.stream.Collectors;
 
 public class NodeManager implements CommandManager {
@@ -21,6 +19,7 @@ public class NodeManager implements CommandManager {
 
     @CommandHandler(names = "add")
     public void addNode(DocumentStateWrapper document,String[] params) {
+        if(document.currentNode() instanceof TextNode) return;
         if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
         if (params.length == 1) addContainer(document,params);
         else addLeaf(document,params);
@@ -37,18 +36,17 @@ public class NodeManager implements CommandManager {
     public void addLeaf(DocumentStateWrapper document,String[] params) {
         if (params.length < 2) throw new InvalidParameterException("Invalid number of parameters");
         String val = params.length > 2 ? Arrays.stream(params, 1, params.length).collect(Collectors.joining(" ")) : params[1];
-        document.currentNode().addChild(new XMLLeaf(params[0], val));
-        XMLComponent node = utilityManager.findByTag(document.currentNode(), params[0]);
+        XmlNode node = document.currentNode().addChild(new TextNode(params[0], val));
         if (document.currentNode() == document.mainRoot()) document.setNode("cr",node);
         document.setNode("cn",node);
         Messenger.leafAddedMsg(params[0], val);
+
     }
 
     @CommandHandler(names = {"cont","container"})
     public void addContainer(DocumentStateWrapper document,String[] params) {
         if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
-        document.currentNode().addChild(new XMLContainer(params[0]));
-        XMLComponent node = utilityManager.findByTag(document.currentNode(), params[0]);
+        XmlNode node = document.currentNode().addChild(new ElementNode(params[0]));
         if (document.currentNode() == document.mainRoot()) document.setNode("cr",node);
         document.setNode("cn",node);
         Messenger.containerAddedMsg(params[0]);
@@ -57,7 +55,7 @@ public class NodeManager implements CommandManager {
     @CommandHandler(names = "root")
     public void addRoot(DocumentStateWrapper document,String[] params) {
         if (params.length < 1) throw new InvalidParameterException("Invalid number of parameters");
-        XMLContainer element = new XMLContainer(params[0]);
+        ElementNode element = new ElementNode(params[0]);
         element.setParent(document.mainRoot());
         document.mainRoot().addChild(element);
         Messenger.rootAdded(params[0]);
@@ -66,7 +64,7 @@ public class NodeManager implements CommandManager {
     @CommandHandler(names = "clear")
     public void clear(DocumentStateWrapper document, String[] params) {
         if (!utilityManager.documentEmpty(document)) {
-            document.setNode("mr", new XMLContainer(XMLEditor.documentName));
+            document.setNode("mr", new ElementNode(XMLEditor.documentName));
             document.setNode("cn", document.mainRoot());
             document.setNode("cr",document.mainRoot());
             Log.clearLog();
